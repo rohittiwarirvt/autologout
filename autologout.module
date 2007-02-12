@@ -33,29 +33,6 @@ class autologout_default_settings {
 }
 /* }}} */
 
-/* {{{ autologout_help() */
-/**
- * Implementation of hook_help()
- */
-function autologout_help($section = '') {
-
-  _autologout_debug("autologout_help()");
-
-  $output = '';
-
-  switch ($section) {
-    case 'admin/modules#description':
-      $output = t('Used to automagically logout a user after a specified time');
-      break;
-    case 'admin/help#block':
-      $output = t('Used to automagically logout a user');
-      break;
-  }
-
-  return $output;
-}
-/* }}} */
-
 /* {{{ autologout_info() */
 /**
  * Implementation of hook_info()
