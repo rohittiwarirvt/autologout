@@ -166,9 +166,7 @@ function autologout_footer() {
         watchdog('user', 'automatic logout activated', WATCHDOG_NOTICE);
       }
       unset($_SESSION['lastaccess']);
-      sess_destroy_uid($user->uid);
-      session_id(md5(session_id()));
-      drupal_goto();
+      user_logout();
       return;
     }
   }
