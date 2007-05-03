@@ -305,10 +305,7 @@ function _autologout_settings() {
     '#default_value' => _autologout_local_settings('refresh_delta'),
     '#size' => 10,
     '#maxlength' => 12,
-    '#description' => t('The length of time, in seconds, after a timeout that a browser refresh '.
-                        'is forced. Setting this to 0 (zero) disables the browser refresh facility. '.
-                        'Using this facility will force a browser refresh and expire the session thus '.
-                        'sending the user&#145;s browser to the homepage, in a logged out state.')
+    '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to 0 (zero) disables the browser refresh facility. Using this facility will force a browser refresh and expire the session thus sending the user's browser to the homepage, in a logged out state."),
   );
   $form['autologout']['use_watchdog'] = array(
    '#type' => 'checkbox',
@@ -344,9 +341,7 @@ function _autologout_settings() {
     t('By user : all users in this role can select to switch off this functionality')
   );
   $markup3 = theme_item_list($markup3_items, t('Policy description')) . 
-             t('Please note, if a user is found to be in a role '. 
-               'that allows disabling this feature, this overrides '.
-               'any enforcement');
+             t('Please note, if a user is found to be in a role that allows disabling this feature, this overrides any enforcement'); 
 
   $form['autologout']['markup3'] = array(
    '#type' => 'markup',
