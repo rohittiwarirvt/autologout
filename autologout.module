@@ -281,9 +281,7 @@ function _autologout_settings() {
   );
   $form['autologout']['markup1'] = array(
     '#type'  => 'markup',
-    '#value' => '<br/><b>' .
-                t('WARNING, user with ID = 1 (initial admin user) is never auto-logged out') .
-                '</b>'
+    '#value' => theme('autologout_generic', 1),
   );
   $form['autologout']['enabled'] = array(
     '#type' => 'checkbox',
@@ -323,7 +321,7 @@ function _autologout_settings() {
   
   $form['autologout']['markup2'] = array(
     '#type' => 'markup',
-    '#value' => '<br/><b>' . t('Set-up your site policy by role:-') . '</b>'
+    '#value' => theme('autologout_generic', 0),
   );
 
   foreach(user_roles(TRUE) as $role) {
@@ -465,6 +463,29 @@ function _autologout_local_settings($name = FALSE) {
   }
 }
 /* }}} */
+
+/**
+ * theme_autologout_generic()
+ *
+ * A general theme function used when HTML is being inserted into
+ * a text string. Allows themers the oppertunity to alter html the
+ * module may want to output to suit their site/theme.
+ *
+ * @param integer $arg
+ *  A constant defining what string to return.
+ * @return string
+ *   The actual string.
+ */
+function theme_autologout_generic($arg = 0) {
+  switch ($arg) {
+    case 0:
+      return '<br/><b>'. t('Set-up your site policy by role:-') . '</b>';
+    case 1:
+      return '<br/><b>'. t('WARNING, user with ID = 1 (initial admin user) is never auto-logged out') .'</b>';
+    default:
+      return '';
+  }
+}
 
 /* {{{ _autologout_debug() */
 function _autologout_debug($s) {
