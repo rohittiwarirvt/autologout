@@ -53,7 +53,8 @@ precidence over any Enforce that might have been in place.
 
 Finally, this module provides a block that displays the h,m,s left in this
 session (hours minutes seconds). It can be enabled in Admin > blocks and
-the title of the block can be set in the standard settings page.
+the title of the block can be set in the standard settings page. This block 
+is only displayed if you have the countdowntimer module installed.
 
 If a policy settings means a user is not subject to autologout (in a role
 of Exclude or By user and user set in profile not to autologout) then the
