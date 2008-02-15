@@ -93,20 +93,20 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
   }
   
   if (module_exists("countdowntimer")) {
-  	if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
-  		drupal_set_message(t("Countdown Timer admin settings for Javascript load options should be set to EVERY PAGE."), 'error');
-  	}
+    if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
+      drupal_set_message(t("Countdown Timer admin settings for Javascript load options should be set to EVERY PAGE."), 'error');
+    }
   }
   else {
-  	return;
+    return;
   }
   
   
 
   switch ($op) {
     case 'list':
-     	$block[0]['info'] = t('automated logout info');
-     	return $block;
+      $block[0]['info'] = t('automated logout info');
+      return $block;
       break;
     case 'configure':
     case 'save':
@@ -121,9 +121,9 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           $refresh = (int)_autologout_local_settings('refresh_delta');
           $timeout = _autologout_local_settings('timeout');
           $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
-          $tz = substr(date('O'),0,3);
+          $tz = substr(date('O'), 0, 3);
           $block['content'] = '
-          <span class="countdowntimer">'. date('Y-m-d\TH:i:s', $logout_time) . $tz . ':00
+          <span class="countdowntimer">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00
               <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span> 
               <span style="display:none" class="dir">down</span>
               <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
@@ -520,7 +520,7 @@ function _autologout_local_settings($name = FALSE) {
 function theme_autologout_generic($arg = 0) {
   switch ($arg) {
     case 0:
-      return '<br/><b>'. t('Set-up your site policy by role:-') . '</b>';
+      return '<br/><b>'. t('Set-up your site policy by role:-') .'</b>';
     case 1:
       return '<br/><b>'. t('WARNING, user with ID = 1 (initial admin user) is never auto-logged out') .'</b>';
     default:
