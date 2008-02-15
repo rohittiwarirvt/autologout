@@ -121,10 +121,10 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           $refresh = (int)_autologout_local_settings('refresh_delta');
           $timeout = _autologout_local_settings('timeout');
           $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
-          // PHP 5.1.3 requirement here
+          $tz = substr(date('O'),0,3);
           $block['content'] = '
-          <span class="countdowntimer">'. date('Y-m-d\TH:i:sP', $logout_time) . '
-              <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:sP', $logout_time) .'</span> 
+          <span class="countdowntimer">'. date('Y-m-d\TH:i:s', $logout_time) . $tz . ':00
+              <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span> 
               <span style="display:none" class="dir">down</span>
               <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
               <span style="display:none" class="threshold">5</span>
