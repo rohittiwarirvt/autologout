@@ -117,9 +117,17 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
          */
         if (module_exists("countdowntimer")) {
           if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
+            /**
+             * countdowntimer is not configured for every page, the block 
+             * won't countdown on all pages otherwise.
+             * Log the error 
+             */
             $error_message = t('autologout block called and Countdown Timer admin settings is not set for EVERY PAGE');
             watchdog('configuration', $error_message);
             if (variable_get('error_level', 1) == 1 || strstr($_SERVER['SCRIPT_NAME'], 'update.php')) {
+              /**
+               * if permissable in site settings display the error on the page
+               */
               drupal_set_message($error_message, 'error');
             }
           }
