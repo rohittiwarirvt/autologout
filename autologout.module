@@ -127,7 +127,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
            * which is the ISO 8601 date used here but support was only added in PHP 5 
            */
           $block['content'] = '
-          <span class="countdowntimer">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00
+          <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) . $tz .':00 if this page is not refreshed before then.
               <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span> 
               <span style="display:none" class="dir">down</span>
               <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
