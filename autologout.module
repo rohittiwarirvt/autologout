@@ -152,7 +152,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           <span style="display:none" class="dir">down</span>
           <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
           <span style="display:none" class="threshold">5</span>
-          <span style="display:none" class="complete">You have been logged out. '. ($refresh ? 'This page will refresh in '. $refresh .'         seconds':'') .'</span>
+          <span style="display:none" class="complete">You have been logged out. '. ($refresh ? 'This page will refresh in '. $refresh .' seconds':'') .'</span>
       </span>
       ';
       //_autologout_define_headers();
