@@ -4,6 +4,8 @@
 /**
  * @file
  * Used to automagically log out a user after a preset time, AjK May 2006
+ * 
+ * Converted to use Javascript Countdown timer as a helper module, jrglasgow Feb 2008
  */
 
 /**
@@ -99,12 +101,26 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
         _autologout_debug("  block doesn't apply");
         return;
       }
-      drupal_set_html_head(variable_get('autologout_js', ''));
+      $refresh = (int)_autologout_local_settings('refresh_delta');
+      $timeout = _autologout_local_settings('timeout');
+      $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
+      $tz = substr(date('O'), 0, 3);
+      //drupal_set_html_head(variable_get('autologout_js', ''));
       $block['subject'] = _autologout_local_settings('block_title');
-      $block['content'] = '<div id="autologout_js_div"></div>' . "\n" .
-                          '<div id="autologout_js_div_value" style="display: none;">' . "\n" .
-                          _autologout_local_settings('timeout') . '</div>' . "\n" .
-                          '<script>autologout_start_up()</script>' . "\n";
+      //$block['content'] = '<div id="autologout_js_div"></div>' . "\n" .
+      //                    '<div id="autologout_js_div_value" style="display: none;">' . "\n" .
+      //                    _autologout_local_settings('timeout') . '</div>' . "\n" .
+      //                    '<script>autologout_start_up()</script>' . "\n";
+      $block['content'] = '
+      <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) . $tz .':00 if this page is not refreshed before then.
+          <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span> 
+          <span style="display:none" name="dir">down</span>
+          <span style="display:none" name="format_txt">%hours%:%mins%:%secs%</span>
+          <span style="display:none" name="threshold">5</span>
+          <span style="display:none" name="tz_hours">'.$tz .'</span>
+          <span style="display:none" name="complete">You have not been logged out. '. ($refresh ? 'This page will refresh in '. $refresh .' seconds':'') .'</span>
+      </span>
+      ';
       break;
   } // end switch()
 
