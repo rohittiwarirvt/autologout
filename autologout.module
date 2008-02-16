@@ -100,10 +100,10 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
     case 'configure':
       if (module_exists("countdowntimer")) {
         if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
-          /**
-           * Display the error on the block configure page and log the 
-           * other times the block is called without the settings enabled
-           */
+          //
+          // Display the error on the block configure page and log the 
+          // other times the block is called without the settings enabled
+          //
           drupal_set_message(l(t('Countdown Timer admin settings'),'admin/settings/countdowntimer').t('  for Javascript load options should be set to EVERY PAGE or this block will not display properly.'), 'error');
         }
       }
@@ -113,16 +113,18 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
     case 'save':
       break;
     case 'view':
+      if ($user->uid < 2 || _autologout_by_role()) {
+        _autologout_debug("  block doesn't apply");
+        return;
+      }
       /**
        *  only display the block when the countdowntimer module is installed
        */
       if (module_exists("countdowntimer")) {
         if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
-          /**
-           * countdowntimer is not configured for every page, the block 
-           * won't countdown on all pages otherwise.
-           * Log the error 
-           */
+          //countdowntimer is not configured for every page, the block 
+          //won't countdown on all pages otherwise.
+          //Log the error 
           $error_message = t('autologout block called and Countdown Timer admin settings is not set for EVERY PAGE');
           watchdog('configuration', $error_message);
           if (variable_get('error_level', 1) == 1 || strstr($_SERVER['SCRIPT_NAME'], 'update.php')) {
@@ -133,10 +135,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           }
         }
       }
-      if ($user->uid < 2 || _autologout_by_role()) {
-        _autologout_debug("  block doesn't apply");
-        return;
-      }
+      
       $block['subject'] = _autologout_local_settings('block_title');
       $refresh = (int)_autologout_local_settings('refresh_delta');
       $timeout = _autologout_local_settings('timeout');
