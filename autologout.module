@@ -122,6 +122,10 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           $timeout = _autologout_local_settings('timeout');
           $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
           $tz = substr(date('O'), 0, 3);
+          /**
+           * When we port to Drupal 7 we can change the date to date('c', %logout_time)
+           * which is the ISO 8601 date used here but support was only added in PHP 5 
+           */
           $block['content'] = '
           <span class="countdowntimer">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00
               <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span> 
@@ -147,7 +151,7 @@ function autologout_help($path, $arg) {
     switch ($path) {
         case 'admin/build/block/configure':
             if (($arg[4] == 'autologout') && ($arg[5] == 0))
-            return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' installed.';
+            return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
             break;
     }
 }
@@ -165,20 +169,24 @@ function autologout_init() {
         return;
     }
     $timeout = (int)_autologout_local_settings('timeout');
-    //drupal_set_message('timeout = '.$timeout);
-    //drupal_set_message('$_SESSION = <pre>'.print_r($_SESSION,true).'</pre>');
     if (_autologout_local_settings('enabled')) {
         if (!isset($_SESSION['lastaccess']) || ((int)$_SESSION['lastaccess'] + $timeout) > time()) {
+            /**
+             * If we don't have a time to compare with, or the timeout 
+             * has not yet occurred we set a time.
+             */
             $_SESSION['lastaccess'] = time();
+
             if ($refresh = (int)_autologout_local_settings('refresh_delta')) {
                 $force_refresh = $timeout + $refresh;  
-                //drupal_set_message('refresh = '.$refresh);
                 $this_header = "<meta http-equiv=\"refresh\" content=\"{$force_refresh}\" />";
                 $this_head = drupal_set_html_head($this_header);
             }
         }
         else {
-            // timeout occured, end session
+            /**
+             * timeout occured, end session
+             */
             if (_autologout_local_settings('use_watchdog')) {
                 watchdog('user', 'automatic logout activated', array(), WATCHDOG_NOTICE);
             }
@@ -288,7 +296,7 @@ function autologout_menu() {
  
   $items['admin/settings/autologout'] = array( 
     'title' => t('Automatic logout'),
-    'description' => t('Manage the automated logout feature'),
+    'description' => t('Manage the automated logout features'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_autologout_settings'),
     'access arguments' => array('administer site configuration'),
@@ -376,7 +384,7 @@ function _autologout_settings() {
  
   $markup3_items = array(
     t('Enforce : all users in this role will be auto-logged out'),
-    t('Exculde : all users in this role are excluded from auto-logout functionality'),
+    t('Exclude : all users in this role are excluded from auto-logout functionality'),
     t('By user : all users in this role can select to switch off this functionality')
   );
   $markup3 = theme('item_list', $markup3_items, t('Policy description')) . 
