@@ -105,12 +105,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $timeout = _autologout_local_settings('timeout');
       $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
       $tz = substr(date('O'), 0, 3);
-      //drupal_set_html_head(variable_get('autologout_js', ''));
       $block['subject'] = _autologout_local_settings('block_title');
-      //$block['content'] = '<div id="autologout_js_div"></div>' . "\n" .
-      //                    '<div id="autologout_js_div_value" style="display: none;">' . "\n" .
-      //                    _autologout_local_settings('timeout') . '</div>' . "\n" .
-      //                    '<script>autologout_start_up()</script>' . "\n";
       $block['content'] = '
       <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) . $tz .':00 if this page is not refreshed before then.
           <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span> 
@@ -511,4 +506,4 @@ function _autologout_debug($s) {
   }
 }
 /* }}} */
-?>
+
