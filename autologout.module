@@ -94,6 +94,18 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $block[0]['info'] = t('automated logout info');
       break;
     case 'configure':
+      if (module_exists("countdowntimer")) {
+        if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
+          //
+          // Display the error on the block configure page and log the 
+          // other times the block is called without the settings enabled
+          //
+          drupal_set_message(l(t('Countdown Timer admin settings'),'admin/settings/countdowntimer').t('  for Javascript load options should be set to EVERY PAGE or this block will not display properly.'), 'error');
+        }
+      }
+      else{
+        drupal_set_message(l(t('Javascript Countdown Timer'), 'http://drupal.org/project/countdowntimer').t(' must be installed for the block to be visable.'), 'error');
+      }
     case 'save':
       break;
     case 'view':
@@ -101,13 +113,28 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
         _autologout_debug("  block doesn't apply");
         return;
       }
+      if (module_exists("countdowntimer")) {
+        if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
+          //countdowntimer is not configured for every page, the block 
+          //won't countdown on all pages otherwise.
+          //Log the error 
+          $error_message = t('autologout block called and Countdown Timer admin settings is not set for EVERY PAGE');
+          watchdog('configuration', $error_message);
+          if (variable_get('error_level', 1) == 1 || strstr($_SERVER['SCRIPT_NAME'], 'update.php')) {
+            /**
+             * if permissable in site settings display the error on the page
+             */
+            drupal_set_message($error_message, 'error');
+          }
+        }
+      }
       $refresh = (int)_autologout_local_settings('refresh_delta');
       $timeout = _autologout_local_settings('timeout');
       $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
       $tz = substr(date('O'), 0, 3);
       $block['subject'] = _autologout_local_settings('block_title');
       $block['content'] = '
-      <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) . $tz .':00 if this page is not refreshed before then.
+      <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) .' if this page is not refreshed before then.
           <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span> 
           <span style="display:none" name="dir">down</span>
           <span style="display:none" name="format_txt">%hours%:%mins%:%secs%</span>
@@ -122,6 +149,20 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
   return $block;
 }
 /* }}} */
+
+/* {{{ autologout_help() */
+/**
+ * Implementation of hook_help()
+ */
+function autologout_help($section) {
+    switch ($section) {
+        case 'admin/build/block/configure/autologout/0':
+          return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 5.x-1.17 or later installed.';
+          break;
+    }
+}
+/* }}} */
+
 
 /* {{{ autologout_footer() */
 /**
@@ -258,7 +299,7 @@ function autologout_menu($may_cache) {
     $items[] = array( 
       'path' => 'admin/settings/autologout',
       'title' => t('automatic logout'),
-      'description' => t('manage the automated logout feature'),
+      'description' => t('manage the automated logout features'),
       'callback' => 'drupal_get_form',
       'callback arguments' => '_autologout_settings',
       'access' => user_access('administer site configuration'),
