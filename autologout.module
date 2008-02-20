@@ -148,6 +148,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $block['content'] = '
       <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) .' if this page is not refreshed before then.
           <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span> 
+          <span style="display:none" class="current_server_time">'. date('Y-m-d\TH:i:s') . $tz .':00</span> 
           <span style="display:none" class="dir">down</span>
           <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
           <span style="display:none" class="threshold">5</span>
