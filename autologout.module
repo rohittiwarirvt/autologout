@@ -177,9 +177,7 @@ function autologout_footer() {
   if ($user->uid < 2 || _autologout_by_role()) {
     return;
   }
-
   $timeout = (int)_autologout_local_settings('timeout');
-
   if (_autologout_local_settings('enabled')) {
     if (!isset($_SESSION['lastaccess']) || ((int)$_SESSION['lastaccess'] + $timeout) > time()) {
       $_SESSION['lastaccess'] = time();
@@ -284,7 +282,9 @@ function autologout_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
     case "validate":
     case "prepare":
     case "delete":
-      $_SESSION['lastaccess'] = time();
+      if(!(int)_autologout_local_settings('refresh_delta')){
+        $_SESSION['lastaccess'] = time();
+      }
       break;
   }
 }
