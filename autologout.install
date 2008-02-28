@@ -2,46 +2,37 @@
 // $Id$
 
 /**
- * @file
- * Auto installation for database table(s)
- */
+* Implementation of hook_install().
+*/
+function autologout_install() {
+  // Create tables.
+  drupal_install_schema('autologout');
+  
+  // sink module's weight to the deepest depths of the module_list()
+  db_query("UPDATE {system} SET weight = %d WHERE name = '%s'", 1000, 'autologout');
+}
 
-if (!function_exists('autologout_install')) {
-  function autologout_install() {
-    $created = FALSE;
-    switch ($GLOBALS['db_type']) {
-      case 'mysql':
-      case 'mysqli':
-        $query1 = db_query("CREATE TABLE IF NOT EXISTS {autologout} (".
-                           "uid INT(10) NOT NULL,".
-                           "setting INT(2) NOT NULL DEFAULT 0,".
-                           "PRIMARY KEY (uid)".
-                           ") /*!40100 DEFAULT CHARACTER SET utf8 */");
-        if ($query1) {
-          $created = TRUE;
-        }
-        break;
 
-      case 'pgsql':
-        $query1 = db_query("CREATE TABLE {autologout} (".
-                           "uid INT NOT NULL,".
-                           "setting SMALLINT NOT NULL default 0,".
-                           "PRIMARY KEY (uid))");
-        if ($query1) {
-          $created = TRUE;
-        }
-        break;
-    } // end switch
+/**
+* Implementation of hook_uninstall().
+*/
+function autologout_uninstall() {
+  // Remove table.
+  drupal_uninstall_schema('autologout');
+}
 
-    // sink module's weight to the deepest depths of the module_list()
-    db_query("UPDATE {system} SET weight = %d WHERE name = '%s'", 1000, 'autologout');
 
-    // provide the user with some install feedback
-    if ($created) {
-      drupal_set_message(t('Autologout database tables installed'));
-    }
-    else {
-      drupal_set_message(t('Table install for autologout was unsuccessful.'));
-    }
-  } // end function
+/**
+* Implementation of hook_schema().
+*/
+function autologout_schema() {
+  $schema['autologout'] = array(
+    'fields' => array(
+      'uid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'setting'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'small')
+    ),
+    'primary key' => array('uid'),
+  );
+
+  return $schema;
 }
