@@ -104,11 +104,11 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           // Display the error on the block configure page and log the 
           // other times the block is called without the settings enabled
           //
-          drupal_set_message(l(t('Countdown Timer admin settings'),'admin/settings/countdowntimer').t('  for Javascript load options should be set to EVERY PAGE or this block will not display properly.'), 'error');
+          drupal_set_message(l(t('Countdown Timer admin settings'), 'admin/settings/countdowntimer') . t('  for Javascript load options should be set to EVERY PAGE or this block will not display properly.'), 'error');
         }
       }
       else{
-        drupal_set_message(l(t('Javascript Countdown Timer'), 'http://drupal.org/project/countdowntimer').t(' must be installed for the block to be visable.'), 'error');
+        drupal_set_message(l(t('Javascript Countdown Timer'), 'http://drupal.org/project/countdowntimer') . t(' must be installed for the block to be visable.'), 'error');
       }
     case 'save':
       break;
@@ -170,7 +170,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
 function autologout_help($path, $arg) {
     switch ($path) {
         case 'admin/build/block/configure':
-            if (($arg[4] == 'autologout') && ($arg[5] == 0)){
+            if (($arg[4] == 'autologout') && ($arg[5] == 0)) {
               return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
             }
             break;
