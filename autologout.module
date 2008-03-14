@@ -153,8 +153,19 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
           <span style="display:none" class="threshold">5</span>
           <span style="display:none" class="complete">You have been logged out. '. ($refresh ? 'This page will refresh in '. $refresh .' seconds':'') .'</span>
-      </span>
       ';
+      
+      $redirect_url = _autologout_local_settings('redirect_url');
+      $logout_message = _autologout_local_settings('logout_message');
+      
+      if ( $redirect_url != '' ) {
+        $block['content'] .='<span style="display:none" class="tc_redir">'. $redirect_url .'</span>';
+      }
+      if ( $logout_message != '' ) {
+        $block['content'] .='<span style="display:none" class="tc_msg">'. $logout_message .'</span>';
+      }
+      
+      $block['content'] .='</span>';
       //_autologout_define_headers();
       break;
   } // end switch()
@@ -198,7 +209,7 @@ function autologout_init() {
              */
             $_SESSION['lastaccess'] = time();
 
-            if ($refresh = (int)_autologout_local_settings('refresh_delta')) {
+            if ($refresh = (int)_autologout_local_settings('refresh_delta') && !module_exists("countdowntimer")) {
                 $force_refresh = $timeout + $refresh;  
                 $this_header = "<meta http-equiv=\"refresh\" content=\"{$force_refresh}\" />";
                 $this_head = drupal_set_html_head($this_header);
@@ -367,14 +378,6 @@ function _autologout_settings() {
     '#maxlength' => 12,
     '#description' => t('The length of inactivity time, in seconds, before auto logout')
   );
-  $form['autologout']['refresh_delta'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Browser refresh delta'),
-    '#default_value' => _autologout_local_settings('refresh_delta'),
-    '#size' => 10,
-    '#maxlength' => 12,
-    '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to 0 (zero) disables the browser refresh facility. Using this facility will force a browser refresh and expire the session thus sending the user's browser to the homepage, in a logged out state."),
-  );
   $form['autologout']['use_watchdog'] = array(
    '#type' => 'checkbox',
    '#title' => t('Enable watchdog auto-logout logging'),
@@ -415,6 +418,34 @@ function _autologout_settings() {
    '#type' => 'markup',
    '#value' => $markup3
   );
+
+  if (module_exists("countdowntimer")) {
+    $form['autologout']['redirect_url']  = array(
+      '#type' => 'textfield',
+      '#title' => t('Redirect URL at logout'),
+      '#default_value' => _autologout_local_settings('redirect_url'),
+      '#size' => 40,
+      '#description' => t('If you want to redirect users to another page when they are logged out. (FULL http:// path)')
+    );
+    $form['autologout']['logout_message']  = array(
+      '#type' => 'textfield',
+      '#title' => t('Display a message box at logout'),
+      '#default_value' => _autologout_local_settings('logout_message'),
+      '#size' => 40,
+      '#description' => t('If you want to display a message to the users when they are logged out.')
+    );
+  } 
+  else {
+    // disabled if countdowntimer is loaded
+    $form['autologout']['refresh_delta'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Browser refresh delay'),
+      '#default_value' => _autologout_local_settings('refresh_delta'),
+      '#size' => 10,
+      '#maxlength' => 12,
+      '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to 0 (zero) disables the browser refresh facility. Using this facility will force a browser refresh and expire the session thus sending the user's browser to the homepage, in a logged out state."),
+    );  
+  }  
 
   return system_settings_form($form);
 }
