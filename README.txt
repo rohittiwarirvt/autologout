@@ -13,8 +13,8 @@ Timeout value in seconds.
   The is the "inactivity" timeout value. It's important to note
   that the server's only way of knowing about activity is when
   a browser requests a page from it. If the user is happily sitting
-  there, say typing an enormous blog entry, then there's no way for
-  server to know the actual user is very busy until she submits the
+  there, say typing an enormous blog entry, then there's no way for the
+  server to know the actual user is very busy until he/she submits the
   page. The server checks for any submissions (input) by the user.
   If there is content being added, the timeout is effectivly
   cancelled and a new session starts.
