@@ -152,7 +152,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           <span style="display:none" class="dir">down</span>
           <span style="display:none" class="format_txt">%hours%:%mins%:%secs%</span>
           <span style="display:none" class="threshold">5</span>
-          <span style="display:none" class="complete">'. t('You have been logged out.') .' '. ($refresh ? ' ' . t('This page will refresh in') .' '. $refresh .' ' . t(' seconds') .'.':'') .'</span>
+          <span style="display:none" class="complete">'. t('You have been logged out.') .' '. ($refresh ? ' ' . t('This page will refresh in %refresh seconds.', array('%refresh' => $refresh)) :'') .'</span>
       ';
       
       $redirect_url = _autologout_local_settings('redirect_url');
@@ -251,6 +251,11 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
 
   switch ($op) {
     case 'login':
+      /*
+      if ($return = _autologout_check_one_session()) {
+        drupal_set_message('return = '. $return);
+        //_invalidate_other_sessions($account);
+      }*/
       $_SESSION['lastaccess'] = time();
       break;
     case 'load':
@@ -346,7 +351,6 @@ function autologout_menu() {
  * Implementation of hook_settings
  */
 function _autologout_settings() {
-
   _autologout_debug("autologout_settings()");
 
   if (!user_access('administer autologout')) {
@@ -446,7 +450,34 @@ function _autologout_settings() {
       '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to 0 (zero) disables the browser refresh facility. Using this facility will force a browser refresh and expire the session thus sending the user's browser to the homepage, in a logged out state."),
     );  
   }  
-
+  $form['autologout_one_session'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('one session settings'),
+    '#tree'  => TRUE,
+    '#description' => 'One session will provide enforcement for "one session" per user. If a user logs in when another session for that user is active the other session will be deactivated and the user will be told.',
+  );
+  $values = variable_get('autologout_one_session', 0);
+  //drupal_set_message('values = <pre>'. print_r($values, true).'</pre>');
+  foreach (user_roles(TRUE) as $role) {
+    $this_value = $values[$role];
+    //drupal_set_message('role = '. $role .' : value = '. $values[$role]);
+    $form['autologout_one_session'][$role] = array(
+      '#type' => 'select',
+      '#title' => $role,
+      '#options' => array('1' => t('Enforce'), '0' => t('Exclude')),
+      '#default_value' => $values[$role], 
+    );
+  }
+  $markup4_items = array(
+    t('Enforce : all users in this role will be only allowed one session.'),
+    t('Exclude : all users in this role are excluded from one session functionality.'),
+  );
+  $markup4 = theme('item_list', $markup4_items, t('Policy description')) . 
+             t('Please note, if a user is found to be in a role that allows disabling this feature, this overrides any enforcement');
+  $form['autologout_one_session']['markup4'] = array(
+   '#type' => 'markup',
+   '#value' => $markup4,
+  );
   return system_settings_form($form);
 }
 /* }}} */
@@ -470,7 +501,7 @@ function _autologout_settings() {
 function _autologout_by_role($passed_user = FALSE) {
   global $user;
 
-  // this bit I am unsure about, if I don't user the
+  // this bit I am unsure about, if I don't use the
   // user_load() function here, I don't see my inserted
   // value "autologout" in the global $user object ??
 
@@ -596,3 +627,26 @@ function _autologout_debug($s) {
   }
 }
 /* }}} */
+
+function _autologout_check_one_session(){
+  global $user;
+  $return = 1;
+  $values = variable_get('autologout_one_session', 0);
+  foreach ($user->roles as $role) {
+    drupal_set_message('role = '. $role .' = '. $values[$role]);
+    $return = $return && $values[$role];
+  }
+  return $return;
+}
+function _autologout_invalidate_other_sessions($account) {
+  // check to see if the user is already logged in somewhere else
+  // if so deactivate that login and let the user know that the 
+  // other session has been deactivated
+  $sql = "SELECT COUNT(*) as count FROM {sessions} WHERE uid = '%s' AND sid != '%s'";
+  $result = db_query($sql, $account->uid, session_id());
+  if($num_rows = db_num_rows($result)) {
+    drupal_set_message(t('You are only allowed 1 session at a time. You had %number_of_rows other active session that was terminated.', array('%number_of_rows' => $num_rows, )), 'error');
+    $sql = "UPDATE {sessions} SET uid='0' WHERE uid = '%s' AND sid != '%s'";
+    db_query($sql, $account->uid, session_id());
+  }
+}
