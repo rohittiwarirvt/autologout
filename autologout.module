@@ -336,7 +336,7 @@ function autologout_menu() {
     'description' => t('Manage the automated logout features'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_autologout_settings'),
-    'access arguments' => array('administer site configuration'),
+    'access arguments' => array('administer autologout'),
     'type' => MENU_NORMAL_ITEM
   );
 
