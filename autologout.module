@@ -133,14 +133,14 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
       $tz = substr(date('O'), 0, 3);
       $block['subject'] = _autologout_local_settings('block_title');
-      $block['content'] = '
-      <span class="countdowntimer">You will be automatically logged out at '. date('r', $logout_time) .' if this page is not refreshed before then.
+       $block['content'] = '
+      <span class="countdowntimer">'. t('You will be automatically logged out at %this_date if this page is not refreshed before then.', array('%this_date' => date('r', $logout_time))). '
           <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span> 
           <span style="display:none" name="dir">down</span>
           <span style="display:none" name="format_txt">%hours%:%mins%:%secs%</span>
           <span style="display:none" name="threshold">5</span>
           <span style="display:none" name="tz_hours">'.$tz .'</span>
-          <span style="display:none" name="complete">You have not been logged out. '. ($refresh ? 'This page will refresh in '. $refresh .' seconds':'') .'</span>
+          <span style="display:none" name="complete">'. t('You have been logged out. ') . ($refresh ? t('This page will refresh in %refresh seconds', array('%refresh' => $refresh)) : '') .'</span>
       </span>
       ';
       break;
