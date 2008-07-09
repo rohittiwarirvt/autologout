@@ -94,7 +94,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
   
   switch ($op) {
     case 'list':
-      $block[0]['info'] = t('automated logout info');
+      $block[0]['info'] = t('Automated Logout info');
       return $block;
       break;
     case 'configure':
@@ -125,7 +125,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           //countdowntimer is not configured for every page, the block 
           //won't countdown on all pages otherwise.
           //Log the error 
-          $error_message = t('autologout block called and Countdown Timer admin settings is not set for EVERY PAGE');
+          $error_message = t('Automated Logout block called and Countdown Timer admin settings is not set for EVERY PAGE');
           watchdog('configuration', $error_message);
           if (variable_get('error_level', 1) == 1 || strstr($_SERVER['SCRIPT_NAME'], 'update.php')) {
             /**
@@ -182,7 +182,7 @@ function autologout_help($path, $arg) {
     switch ($path) {
         case 'admin/build/block/configure':
             if (($arg[4] == 'autologout') && ($arg[5] == 0)) {
-              return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
+              return 'The Automated Logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
             }
             break;
     }
@@ -220,7 +220,7 @@ function autologout_init() {
              * timeout occured, end session
              */
             if (_autologout_local_settings('use_watchdog')) {
-                watchdog('user', 'automatic logout activated', array(), WATCHDOG_NOTICE);
+                watchdog('user', 'Automated Logout activated', array(), WATCHDOG_NOTICE);
             }
            unset($_SESSION['lastaccess']);
            module_load_include('pages.inc', 'user');
@@ -273,7 +273,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
         $form = array();
         $form[$category]['autologout'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Disable inactivity automated logout'),
+          '#title' => t('Disable inactivity Automated Logout'),
           '#default_value' => $account->autologout,
           '#weight' => 10 
         );
@@ -332,8 +332,8 @@ function autologout_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 function autologout_menu() {
  
   $items['admin/settings/autologout'] = array( 
-    'title' => t('Automatic logout'),
-    'description' => t('Manage the automated logout features'),
+    'title' => t('Automated logout'),
+    'description' => t('Manage the Automated Logout features'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_autologout_settings'),
     'access arguments' => array('administer autologout'),
@@ -361,7 +361,7 @@ function _autologout_settings() {
   $form = array();
   $form['autologout'] = array(
     '#type'  => 'fieldset',
-    '#title' => t('auto logout settings'),
+    '#title' => t('Automated Logout settings'),
     '#tree'  => TRUE
   );
   $form['autologout']['markup1'] = array(
@@ -372,7 +372,7 @@ function _autologout_settings() {
     '#type' => 'checkbox',
     '#title' => t('Enable module'),
     '#default_value' => _autologout_local_settings('enabled'),
-    '#description' => t('Uncheck this and save settings to disable auto logout')
+    '#description' => t('Uncheck this and save settings to disable Automated Logout')
   );
   $form['autologout']['timeout'] = array(
     '#type' => 'textfield',
@@ -380,11 +380,11 @@ function _autologout_settings() {
     '#default_value' => _autologout_local_settings('timeout'),
     '#size' => 10,
     '#maxlength' => 12,
-    '#description' => t('The length of inactivity time, in seconds, before auto logout')
+    '#description' => t('The length of inactivity time, in seconds, before Automated Logout')
   );
   $form['autologout']['use_watchdog'] = array(
    '#type' => 'checkbox',
-   '#title' => t('Enable watchdog auto-logout logging'),
+   '#title' => t('Enable watchdog Automated Logout logging'),
    '#default_value' => _autologout_local_settings('use_watchdog'),
    '#description' => t('Enable logging of automatically logged out users')
   ); 
