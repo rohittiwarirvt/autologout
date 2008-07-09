@@ -31,7 +31,7 @@ class autologout_default_settings {
   var $timeout = 3600;        // default 1 hour
   var $refresh_delta = 0;     // force browser refresh (timeout+refresh_delta)
   var $use_watchdog = 1;      // log auto-logouts to watchdog
-  var $block_title = 'automatic logout in';
+  var $block_title = 'Automated Logout in';
 }
 /* }}} */
 
@@ -157,7 +157,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
 function autologout_help($section) {
     switch ($section) {
         case 'admin/build/block/configure/autologout/0':
-          return 'The automatic logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 5.x-1.17 or later installed.';
+          return 'The Automated Logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 5.x-1.17 or later installed.';
           break;
     }
 }
@@ -190,7 +190,7 @@ function autologout_footer() {
     else {
       // timeout occured, end session
       if (_autologout_local_settings('use_watchdog')) {
-        watchdog('user', 'automatic logout activated', WATCHDOG_NOTICE);
+        watchdog('user', ' logout activated', WATCHDOG_NOTICE);
       }
       unset($_SESSION['lastaccess']);
       user_logout();
@@ -236,7 +236,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
         $form = array();
         $form[$category]['autologout'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Disable inactivity automated logout'),
+          '#title' => t('Disable inactivity Automated Logout'),
           '#default_value' => $account->autologout,
           '#weight' => 10 
         );
@@ -298,8 +298,8 @@ function autologout_menu($may_cache) {
   if($may_cache) {
     $items[] = array( 
       'path' => 'admin/settings/autologout',
-      'title' => t('automatic logout'),
-      'description' => t('manage the automated logout features'),
+      'title' => t('Automated Logout'),
+      'description' => t('manage the Automated Logout features'),
       'callback' => 'drupal_get_form',
       'callback arguments' => '_autologout_settings',
       'access' => user_access('administer autologout'),
@@ -359,9 +359,9 @@ function _autologout_settings() {
   );
   $form['autologout']['use_watchdog'] = array(
    '#type' => 'checkbox',
-   '#title' => t('Enable watchdog auto-logout logging'),
+   '#title' => t('Enable watchdog Automated Logout logging'),
    '#default_value' => _autologout_local_settings('use_watchdog'),
-   '#description' => t('Enable logging of automatically logged out users')
+   '#description' => t('Enable logging of ally logged out users')
   ); 
   $form['autologout']['block_title']  = array(
     '#type' => 'textfield',
@@ -387,7 +387,7 @@ function _autologout_settings() {
  
   $markup3_items = array(
     t('Enforce : all users in this role will be auto-logged out'),
-    t('Exculde : all users in this role are excluded from auto-logout functionality'),
+    t('Exculde : all users in this role are excluded from Automated Logout functionality'),
     t('By user : all users in this role can select to switch off this functionality')
   );
   $markup3 = theme('item_list', $markup3_items, t('Policy description')) . 
