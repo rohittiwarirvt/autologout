@@ -4,7 +4,7 @@
 /**
  * @file
  * Used to automagically log out a user after a preset time, AjK May 2006
- * 
+ *
  * Converted to use Javascript Countdown timer as a helper module, jrglasgow Feb 2008
  */
 
@@ -97,7 +97,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       if (module_exists("countdowntimer")) {
         if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
           //
-          // Display the error on the block configure page and log the 
+          // Display the error on the block configure page and log the
           // other times the block is called without the settings enabled
           //
           drupal_set_message(l(t('Countdown Timer admin settings'),'admin/settings/countdowntimer').t('  for Javascript load options should be set to EVERY PAGE or this block will not display properly.'), 'error');
@@ -115,7 +115,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       }
       if (module_exists("countdowntimer")) {
         if (variable_get('countdowntimer_js_load_option', 0) != 1 ) {
-          //countdowntimer is not configured for every page, the block 
+          //countdowntimer is not configured for every page, the block
           //won't countdown on all pages otherwise.
           //Log the error 
           $error_message = t('autologout block called and Countdown Timer admin settings is not set for EVERY PAGE');
@@ -135,7 +135,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $block['subject'] = _autologout_local_settings('block_title');
       $block['content'] = '
       <span class="countdowntimer">'. t('You will be automatically logged out at %this_date if this page is not refreshed before then.', array('%this_date' => date('r', $logout_time))). '
-        <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span> 
+        <span style="display:none" name="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . '</span>
         <span style="display:none" name="dir">down</span>
         <span style="display:none" name="format_txt">%hours%:%mins%:%secs%</span>
         <span style="display:none" name="threshold">5</span>
@@ -182,7 +182,7 @@ function autologout_footer() {
     if (!isset($_SESSION['lastaccess']) || ((int)$_SESSION['lastaccess'] + $timeout) > time()) {
       $_SESSION['lastaccess'] = time();
       if ($refresh = (int)_autologout_local_settings('refresh_delta')) {
-        $force_refresh = $timeout + $refresh;  
+        $force_refresh = $timeout + $refresh;
         drupal_set_html_head("\n  <meta http-equiv=\"refresh\" content=\"$force_refresh\" />");
         return;
       }
@@ -238,7 +238,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
           '#type' => 'checkbox',
           '#title' => t('Disable inactivity Automated Logout'),
           '#default_value' => $account->autologout,
-          '#weight' => 10 
+          '#weight' => 10,
         );
         return $form;
       }
@@ -247,7 +247,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
       if(_autologout_user_in_by_user_role($account)) {
         if(isset($edit['autologout'])) {
           db_query("DELETE FROM {autologout} WHERE uid = %d", $account->uid);
-          db_query("INSERT INTO {autologout} SET uid = %d, setting = %d", 
+          db_query("INSERT INTO {autologout} SET uid = %d, setting = %d",
             $account->uid, $edit['autologout']);
           unset($edit['autologout']);
         }
@@ -296,14 +296,14 @@ function autologout_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  */
 function autologout_menu($may_cache) {
   if($may_cache) {
-    $items[] = array( 
+    $items[] = array(
       'path' => 'admin/settings/autologout',
       'title' => t('Automated Logout'),
       'description' => t('manage the Automated Logout features'),
       'callback' => 'drupal_get_form',
       'callback arguments' => '_autologout_settings',
       'access' => user_access('administer autologout'),
-      'type' => MENU_NORMAL_ITEM
+      'type' => MENU_NORMAL_ITEM,
     );
 
     return $items;
@@ -329,7 +329,7 @@ function _autologout_settings() {
   $form['autologout'] = array(
     '#type'  => 'fieldset',
     '#title' => t('auto logout settings'),
-    '#tree'  => TRUE
+    '#tree'  => TRUE,
   );
   $form['autologout']['markup1'] = array(
     '#type'  => 'markup',
@@ -339,7 +339,7 @@ function _autologout_settings() {
     '#type' => 'checkbox',
     '#title' => t('Enable module'),
     '#default_value' => _autologout_local_settings('enabled'),
-    '#description' => t('Uncheck this and save settings to disable auto logout')
+    '#description' => t('Uncheck this and save settings to disable auto logout'),
   );
   $form['autologout']['timeout'] = array(
     '#type' => 'textfield',
@@ -347,7 +347,7 @@ function _autologout_settings() {
     '#default_value' => _autologout_local_settings('timeout'),
     '#size' => 10,
     '#maxlength' => 12,
-    '#description' => t('The length of inactivity time, in seconds, before auto logout')
+    '#description' => t('The length of inactivity time, in seconds, before auto logout'),
   );
   $form['autologout']['refresh_delta'] = array(
     '#type' => 'textfield',
@@ -361,14 +361,14 @@ function _autologout_settings() {
    '#type' => 'checkbox',
    '#title' => t('Enable watchdog Automated Logout logging'),
    '#default_value' => _autologout_local_settings('use_watchdog'),
-   '#description' => t('Enable logging of ally logged out users')
+   '#description' => t('Enable logging of all logged out users'),
   ); 
   $form['autologout']['block_title']  = array(
     '#type' => 'textfield',
     '#title' => t('Block title'),
     '#default_value' => _autologout_local_settings('block_title'),
     '#size' => 40,
-    '#description' => t('The title of the block')
+    '#description' => t('The title of the block'),
   );
   
   $form['autologout']['markup2'] = array(
@@ -381,21 +381,20 @@ function _autologout_settings() {
       '#type' => 'select',
       '#title' => $role,
       '#options' => array('0' => t('Enforce'), '1' => t('Exclude'), '2' => t('By user')),
-      '#default_value' => _autologout_local_settings($role) 
+      '#default_value' => _autologout_local_settings($role),
     );
   }
  
   $markup3_items = array(
     t('Enforce : all users in this role will be auto-logged out'),
-    t('Exculde : all users in this role are excluded from Automated Logout functionality'),
+    t('Exclude : all users in this role are excluded from Automated Logout functionality'),
     t('By user : all users in this role can select to switch off this functionality')
   );
-  $markup3 = theme('item_list', $markup3_items, t('Policy description')) . 
-             t('Please note, if a user is found to be in a role that allows disabling this feature, this overrides any enforcement'); 
+  $markup3 = theme('item_list', $markup3_items, t('Policy description')) . t('Please note, if a user is found to be in a role that allows disabling this feature, this overrides any enforcement'); 
 
   $form['autologout']['markup3'] = array(
    '#type' => 'markup',
-   '#value' => $markup3
+   '#value' => $markup3,
   );
 
   return system_settings_form($form);
@@ -435,7 +434,7 @@ function _autologout_by_role($passed_user = FALSE) {
   foreach (user_roles(TRUE) as $role) {
     switch (_autologout_local_settings($role)) {
       case 0: // Enforce for all in this role
-        break; 
+        break;
       case 1: // Exclude all users in this role
         if (in_array($role, $local_user->roles)) {
           return TRUE;
@@ -445,7 +444,7 @@ function _autologout_by_role($passed_user = FALSE) {
         if (in_array($role, $local_user->roles)) {
           if (isset($local_user->autologout) && $local_user->autologout != 0) {
             return TRUE;
-          } 
+          }
         }
         break;
     }
@@ -463,7 +462,7 @@ function _autologout_user_in_by_user_role($passed_user = FALSE) {
     $local_user = user_load(array('uid' => $user->uid));
   }
   else {
-    $local_user = $passed_user;                                  
+    $local_user = $passed_user;
   }  
 
   foreach (user_roles(TRUE) as $role) {
