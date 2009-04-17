@@ -54,6 +54,7 @@ function autologout_form_alter(&$form, $form_state, $form_id) {
  */
 function autologout_init() {
   global $user;
+  global $base_root;
   if ($user->uid > 0) {
     // See if automatic logout is enabled.
     $seconds = variable_get('autologout_seconds', 0);
@@ -62,16 +63,33 @@ function autologout_init() {
       if (!isset($_SESSION['autologout_lastaccess']) || ((int)$_SESSION['autologout_lastaccess']) > time() - $seconds) {
         // Update the session's last access.
         $_SESSION['autologout_lastaccess'] = time();
-        $redirect = base_path() .'logout';
-        drupal_set_html_head("<meta http-equiv='refresh' content='$seconds';url='$redirect'>");
+        drupal_set_html_head("<meta http-equiv='refresh' content='$seconds';url='$base_root'>");
       }
       else {
         // Force the user to log out.
-        module_load_include('inc', 'user', 'user.pages');
-        user_logout();
+				
+				// code from user module, user_logout, can't use it because we can't set a custom goto
+				watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
+			  // Destroy the current session:
+			  session_destroy();
+			  module_invoke_all('user', 'logout', NULL, $user);
+			  // Load the anonymous user
+			  $user = drupal_anonymous_user();
+			  drupal_goto('autologout/logout');
       }
     }
   }
+}
+
+function autologout_menu() {
+
+  $items['autologout/logout'] = array(
+    'title' => t('Automated logout'),
+    'page callback' => 'autologout_logout',
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
 }
 
 /**
@@ -114,9 +132,27 @@ function theme_autologout_block() {
   global $user;
   $seconds = (int)variable_get('autologout_seconds', 0);
   if ($user->uid != 0 && $seconds > 0) {
-    if (module_exists('jquery_countdown')) {
-      jquery_countdown_add(".autologout", array("until" => $seconds, "expiryUrl" => base_path() .'logout'));
+    if (module_exists('countdowntimer')) {
+      $content = '<span class="countdowntimer">'. t('You will be logged out in !time.', array('!time' => format_interval($seconds))) .'
+					<span style="display:none" class="cdt_class">simple-timer</span>
+					<span style="display:none" class="cdt_interval">'. $seconds .'</span>
+					<span style="display:none" class="dir">down</span>
+          <span style="display:none" class="format_txt">' . t('You will be logged out in ') . ' %hours%:%mins%:%secs%</span>
+          <span style="display:none" class="complete">'. t('You have been logged out by the Automated Logout Module.') .'</span>
+      ';
     }
-    return '<div class="autologout">'. t('You will be logged out in !time.', array('!time' => format_interval($seconds))) . '</div>';
+    return $content;
   }
+}
+
+
+function autologout_logout() {
+	global $user;
+	
+	if ($user->uid == 0 ) {
+		print theme('page', t('You have been logged out by the Automated Logout Module.'));
+	}
+	else {
+		drupal_goto();
+	}
 }
