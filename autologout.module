@@ -86,6 +86,7 @@ function autologout_menu() {
   $items['autologout/logout'] = array(
     'title' => t('Automated logout'),
     'page callback' => 'autologout_logout',
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK
   );
 
