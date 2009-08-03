@@ -1,0 +1,16 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Includes install stuff.
+*/
+
+
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function autologout_uninstall() {
+  variable_del('autologout_seconds');
+}
