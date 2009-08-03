@@ -30,24 +30,23 @@ function autologout_form_alter(&$form, $form_state, $form_id) {
       '#weight' => -1,
     );
     $form['autologout']['autologout_seconds'] = array(
-      '#type' => 'select',
-      '#title' => t('Time until forced logout'),
-      '#description' => t('Force the user to logout after the given amount of time.'),
-      '#default_value' => variable_get('autologout_seconds', 0),
-      '#options' => array(
-        0 => t('Disabled'),
-        30 => t('30 seconds'),
-        60 => t('One minute'),
-        60 * 2 => t('Two minutes'),
-        60 * 5 => t('Five minutes'),
-        60 * 10 => t('Ten minutes'),
-        60 * 20 => t('Twenty minutes'),
-        60 * 30 => t('Thirty minutes'),
-        60 * 60 => t('One hour'),
-      ),
+      '#type' => 'textfield',
+      '#size' => 6,
+      '#title' => t('Time until forced logout (seconds)'),
+      '#description' => t('Force the user to logout after the given amount of time in seconds (0=disabled).'),
+      '#default_value' => variable_get('autologout_seconds', 0)
     );
+    $form['#validate'][] = 'autologout_form_validate';
   }
 }
+function autologout_form_validate($form, &$form_state) {
+  $autologout_seconds = $form_state['values']['autologout_seconds'];
+  if ($autologout_seconds != 0 && $autologout_seconds < 15) {
+    form_set_error('autologout_seconds', t('The automated logout module requires the forced logout value to be greater than 15 seconds.', array('%add-child' => t('Add child page'))));
+  }
+}
+
+
 
 /**
  * Implementation of hook_init().
