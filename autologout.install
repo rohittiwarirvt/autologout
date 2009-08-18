@@ -45,3 +45,9 @@ if (!function_exists('autologout_install')) {
     }
   } // end function
 }
+
+function autologout_uninstall() {
+	db_query('DROP TABLE {autologout}');
+	
+	variable_del('autologout');
+}
