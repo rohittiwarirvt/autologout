@@ -244,6 +244,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
       }
       break;
     case 'update':
+      $_SESSION['lastaccess'] = time();
       if(_autologout_user_in_by_user_role($account)) {
         if(isset($edit['autologout'])) {
           db_query("DELETE FROM {autologout} WHERE uid = %d", $account->uid);
