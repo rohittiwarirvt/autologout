@@ -251,10 +251,9 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
     case 'load':
       if (_autologout_user_in_by_user_role($account)) {
         $account->autologout = 0;
-        $r = db_query("SELECT setting FROM {autologout} WHERE uid = %d", $account->uid);
-        if (db_num_rows($r) > 0) {
-          $row = db_fetch_object($r);
-          $account->autologout = (int)$row->setting;
+        $obj = db_fetch_object(db_query("SELECT setting FROM {autologout} WHERE uid = %d", $account->uid));
+        if ( isset($obj) ) {
+        	$account->autologout = (int)$obj->setting;
         }
       }
       break;
