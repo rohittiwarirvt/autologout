@@ -145,7 +145,7 @@ function theme_autologout_block() {
           <span style="display:none" class="cdt_interval">'. $seconds .'</span>
           <span style="display:none" class="dir">down</span>
           <span style="display:none" class="format_txt">' . t('You will be logged out in ') . ' %hours%:%mins%:%secs%</span>
-          <span style="display:none" class="complete">'. t('You have been logged out by the Automated Logout Module.') .'</span>
+          <span style="display:none" class="complete">'. t('You have been automatically logged out due to inactivity.') .'</span>
       ';
     }
     return $content;
@@ -157,7 +157,7 @@ function autologout_logout() {
   global $user;
   
   if ($user->uid == 0 ) {
-    print theme('page', t('You have been logged out by the Automated Logout Module.'));
+    print theme('page', t('You have been automatically logged out due to inactivity.'));
   }
   else {
     drupal_goto();
