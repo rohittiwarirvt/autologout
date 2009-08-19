@@ -73,7 +73,7 @@ function autologout_init() {
       }
       else {
         // Force the user to log out.
-        
+
         // code from user module, user_logout, can't use it because we can't set a custom goto
         watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
         // Destroy the current session:
@@ -155,7 +155,7 @@ function theme_autologout_block() {
 
 function autologout_logout() {
   global $user;
-  
+
   if ($user->uid == 0 ) {
     print theme('page', t('You have been automatically logged out due to inactivity.'));
   }
