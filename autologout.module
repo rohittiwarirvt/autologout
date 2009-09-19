@@ -185,11 +185,13 @@ function autologout_help($path, $arg) {
 /* }}} */
 
 
-/* {{{ autologout_init() */
+/* {{{ autologout_boot() */
 /**
- * Implementation of hook_init().
+ * Implementation of hook_boot().
  */
-function autologout_init() {
+function autologout_boot() {
+  include_once('includes/common.inc');
+  drupal_init_language();
   global $user;
   if ($user->uid < 2 || _autologout_by_role()) {
     _autologout_debug("  block doesn't apply");
