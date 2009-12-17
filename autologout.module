@@ -176,13 +176,13 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
  * Implementation of hook_help().
  */
 function autologout_help($path, $arg) {
-    switch ($path) {
-        case 'admin/build/block/configure':
-            if (($arg[4] == 'autologout') && ($arg[5] == 0)) {
-              return 'The Automated Logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
-            }
-            break;
-    }
+  switch ($path) {
+    case 'admin/build/block/configure':
+      if (($arg[4] == 'autologout') && ($arg[5] == 0)) {
+        return 'The Automated Logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
+      }
+      break;
+  }
 }
 /* }}} */
 
@@ -304,7 +304,6 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
  * Implementation of hook_nodeapi().
  */
 function autologout_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
-
   _autologout_debug("autologout_nodeapi($op)");
 
   // if a user is entering data then don't log them out or
@@ -508,7 +507,6 @@ function _autologout_by_role($passed_user = FALSE) {
   else {
     $local_user = $passed_user;
   }
-
   foreach (user_roles(TRUE) as $role) {
     switch (_autologout_local_settings($role)) {
       case 0: // Enforce for all in this role
@@ -535,14 +533,12 @@ function _autologout_by_role($passed_user = FALSE) {
 /* {{{ _autologout_user_in_by_user_role() */
 function _autologout_user_in_by_user_role($passed_user = FALSE) {
   global $user;
-
   if (FALSE == $passed_user) {
     $local_user = user_load(array('uid' => $user->uid));
   }
   else {
     $local_user = $passed_user;
   }
-
   foreach (user_roles(TRUE) as $role) {
     if (_autologout_local_settings($role) == 2 && in_array($role, $local_user->roles)) {
       return TRUE;
@@ -570,12 +566,10 @@ function _autologout_user_in_by_user_role($passed_user = FALSE) {
  *   string the named variabled value
  */
 function _autologout_local_settings($name = FALSE) {
-
   $defaults = (array)(new autologout_default_settings);
   if (!($settings = variable_get('autologout', FALSE))) {
     $settings = $defaults;
   }
-
   if (FALSE != $name) {
     if (!isset($settings[$name]) && isset($defaults[$name])) {
       return $defaults[$name];
@@ -618,7 +612,6 @@ function theme_autologout_generic($arg = 0) {
 
 /* {{{ _autologout_debug() */
 function _autologout_debug($s) {
-
   if (defined("AUTOLOGOUT_DEBUG") && AUTOLOGOUT_DEBUG) {
     error_log($s);
   }
@@ -630,10 +623,8 @@ function _autologout_check_one_session() {
   $return = 1;
   $values = variable_get('autologout_one_session', 0);
   foreach ($user->roles as $role) {
-    //drupal_set_message('role = '. $role .' = '. $values[$role]);
     $return = $return && $values[$role];
   }
-  //drupal_set_message('return = '. $return);
   return $return;
 }
 function _autologout_invalidate_other_sessions($account) {
@@ -642,7 +633,6 @@ function _autologout_invalidate_other_sessions($account) {
   // other session has been deactivated
   $sql = "SELECT COUNT(*) as count FROM {sessions} WHERE uid = '%s' AND sid <> '%s'";
   $result = db_result(db_query($sql, $account->uid, session_id()));
-  //drupal_set_message('session counts = '. $result);
   if ($result != 0) {
     drupal_set_message(t('You are only allowed 1 session at a time. You had %number_of_rows other active sessions that were terminated.', array('%number_of_rows' => $result, )), 'error');
     $sql = "UPDATE {sessions} SET uid='0' WHERE uid = '%s' AND sid <> '%s'";
