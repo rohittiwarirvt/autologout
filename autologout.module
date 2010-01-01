@@ -112,7 +112,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
     case 'save':
       break;
     case 'view':
-      if ($user->uid < 2 || _autologout_by_role()) {
+      if ($user->uid < 1 || _autologout_by_role()) {
         _autologout_debug("  block doesn't apply");
         return;
       }
@@ -195,7 +195,7 @@ function autologout_boot() {
   include_once('includes/common.inc');
   drupal_init_language();
   global $user;
-  if ($user->uid < 2 || _autologout_by_role()) {
+  if ($user->uid < 1 || _autologout_by_role()) {
     _autologout_debug("  block doesn't apply");
     return;
   }
