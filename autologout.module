@@ -193,7 +193,7 @@ function autologout_help($path, $arg) {
  */
 function autologout_boot() {
   include_once('includes/common.inc');
-  drupal_init_language();
+
   global $user;
   if ($user->uid < 1 || _autologout_by_role()) {
     _autologout_debug("  block doesn't apply");
