@@ -379,7 +379,7 @@ function _autologout_settings() {
     '#default_value' => _autologout_local_settings('timeout'),
     '#size' => 10,
     '#maxlength' => 12,
-    '#description' => t('The length of inactivity time, in seconds, before Automated Logout')
+    '#description' => t('The length of inactivity time, in seconds, before Automated Logout.  Must be 60 seconds or greater.')
   );
   $form['autologout']['use_watchdog'] = array(
    '#type' => 'checkbox',
@@ -476,6 +476,13 @@ function _autologout_settings() {
   );
   return system_settings_form($form);
 }
+
+function _autologout_settings_validate($form, $form_state) {
+  if ( $form_state['values']['autologout']['timeout'] < 60 ) {
+    form_set_error('autologout][timeout', t('You must specify a timeout value 60 seconds or greater'));
+  }
+}
+
 /* }}} */
 
 /* ========================= */
