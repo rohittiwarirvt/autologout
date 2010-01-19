@@ -624,7 +624,7 @@ function _autologout_check_one_session() {
   $return = 1;
   $values = variable_get('autologout_one_session', 0);
   foreach ($user->roles as $role) {
-    $return = $return && $values[$role];
+    $return = $return && $values[t($role)];
   }
   return $return;
 }
