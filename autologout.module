@@ -502,10 +502,6 @@ function _autologout_settings_validate($form, $form_state) {
 function _autologout_by_role($passed_user = FALSE) {
   global $user;
 
-  // this bit I am unsure about, if I don't use the
-  // user_load() function here, I don't see my inserted
-  // value "autologout" in the global $user object ??
-
   if (FALSE == $passed_user) {
     $local_user = user_load(array('uid' => $user->uid));
   }
