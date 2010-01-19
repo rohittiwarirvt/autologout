@@ -181,19 +181,17 @@ function autologout_help($path, $arg) {
       if (($arg[4] == 'autologout') && ($arg[5] == 0)) {
         return 'The Automated Logout block will only display if you have '. l('Javascript Countdown Timer', 'http://drupal.org/project/countdowntimer') .' 6.x-2.1 or later installed.';
       }
-      break;
+    break;
   }
 }
 /* }}} */
 
 
-/* {{{ autologout_boot() */
+/* {{{ autologout_init() */
 /**
- * Implementation of hook_boot().
+ * Implementation of hook_init().
  */
-function autologout_boot() {
-  include_once('includes/common.inc');
-
+function autologout_init() {
   global $user;
   if ($user->uid < 1 || _autologout_by_role()) {
     _autologout_debug("  block doesn't apply");
@@ -507,7 +505,7 @@ function _autologout_by_role($passed_user = FALSE) {
   // this bit I am unsure about, if I don't use the
   // user_load() function here, I don't see my inserted
   // value "autologout" in the global $user object ??
-  module_load_include('module', 'user');
+
   if (FALSE == $passed_user) {
     $local_user = user_load(array('uid' => $user->uid));
   }
