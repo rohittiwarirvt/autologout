@@ -216,12 +216,14 @@ function autologout_init() {
     }
 
     // update lastaccess from any cache hits which wouldn't have been processes by hook_init()
-    foreach($_SESSION['autologout_hits'] as $hit) {
-      if ( (int)$hit - (int)$_SESSION['lastaccess'] > 0 ) {
-        // if hit wouldn't have timedout, update lastaccess
-        if ( ((int)$hit - (int)$_SESSION['lastaccess']) < $timeout ) {
-        	// rebase lastaccess
-          $_SESSION['lastaccess'] = $hit;
+    if ( isset($_SESSION['autologout_hits']) ) {
+      foreach($_SESSION['autologout_hits'] as $hit) {
+        if ( (int)$hit - (int)$_SESSION['lastaccess'] > 0 ) {
+          // if hit wouldn't have timedout, update lastaccess
+          if ( ((int)$hit - (int)$_SESSION['lastaccess']) < $timeout ) {
+            // rebase lastaccess
+            $_SESSION['lastaccess'] = $hit;
+          }
         }
       }
     }
