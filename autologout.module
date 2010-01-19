@@ -74,11 +74,15 @@ function autologout_init() {
       else {
         // Force the user to log out.
 
-        // code from user module, user_logout, can't use it because we can't set a custom goto
+        // code from core(user.pages.inc), can't use it directly because we need need a custom goto
         watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
+
         // Destroy the current session:
         session_destroy();
-        module_invoke_all('user', 'logout', NULL, $user);
+        // Only variables can be passed by reference workaround.
+        $null = NULL;
+        user_module_invoke('logout', $null, $user);
+
         // Load the anonymous user
         $user = drupal_anonymous_user();
         drupal_goto('autologout/logout');
