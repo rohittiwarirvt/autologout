@@ -186,6 +186,16 @@ function autologout_help($path, $arg) {
 }
 /* }}} */
 
+/**
+ * Implementation of hook_boot().
+ * NOTE: Do as little as possible here. A lot of modules are not loaded at this point.
+ */
+function autologout_boot() {
+  if ( !isset($_SESSION['autologout_hits']) ) {
+    $_SESSION['autologout_hits'] = array();
+  }
+  $_SESSION['autologout_hits'][] = time();
+}
 
 /* {{{ autologout_init() */
 /**
@@ -197,14 +207,34 @@ function autologout_init() {
     _autologout_debug("  block doesn't apply");
     return;
   }
-  $timeout = (int)_autologout_local_settings('timeout');
+
   if (_autologout_local_settings('enabled')) {
-    if (!isset($_SESSION['lastaccess']) || ((int)$_SESSION['lastaccess'] + $timeout) > time()) {
-      /**
-       * If we don't have a time to compare with, or the timeout
-       * has not yet occurred we set a time.
-       */
-      $_SESSION['lastaccess'] = time();
+    $timeout = (int)_autologout_local_settings('timeout');
+    $nowtime = time();
+    if (!isset($_SESSION['lastaccess'])) {
+       $_SESSION['lastaccess'] = $nowtime;
+    }
+
+    // update lastaccess from any cache hits which wouldn't have been processes by hook_init()
+    foreach($_SESSION['autologout_hits'] as $hit) {
+      if ( (int)$hit - (int)$_SESSION['lastaccess'] <= 0 ) {
+        // old hit, skip it
+      }
+      else {
+        // if hit wouldn't have timedout, update lastaccess
+        if ( ((int)$hit - (int)$_SESSION['lastaccess']) < $timeout ) {
+          $_SESSION['lastaccess'] = $hit;
+        }
+      }
+    }
+
+    // now normal processing because the cache hits have been accounted for.
+    if ( ($nowtime - (int)$_SESSION['lastaccess']) < $timeout ) {
+      // the timeout has not yet occurred.
+
+      $_SESSION['lastaccess'] = $nowtime;
+      $_SESSION['autologout_hits'] = array($nowtime);
+
       if ($refresh = (int)_autologout_local_settings('refresh_delta') && !module_exists("countdowntimer")) {
         $force_refresh = $timeout + $refresh;
         $this_header = "<meta http-equiv=\"refresh\" content=\"{$force_refresh}\" />";
@@ -212,9 +242,7 @@ function autologout_init() {
       }
     }
     else {
-      /**
-       * timeout occured, end session
-       */
+      // timeout occured, logout and end session
       if (_autologout_local_settings('use_watchdog')) {
         watchdog('user', 'Automated Logout activated', array(), WATCHDOG_NOTICE);
       }
