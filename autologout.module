@@ -276,9 +276,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
     case 'login':
       // one session checking
       $return = _autologout_check_one_session();
-      //drupal_set_message('return = '. $return);
       if ($return) {
-        //drupal_set_message('checking for other sessions');
         _autologout_invalidate_other_sessions($account);
       }
       $_SESSION['lastaccess'] = time();
@@ -480,10 +478,10 @@ function _autologout_settings() {
     '#description' => 'One session will provide enforcement for "one session" per user. If a user logs in when another session for that user is active the other session will be deactivated. The user will be notified and the event logged.',
   );
   $values = variable_get('autologout_one_session', 0);
-  //drupal_set_message('values = <pre>'. print_r($values, true).'</pre>');
+
   foreach (user_roles(TRUE) as $role) {
     $this_value = $values[$role];
-    //drupal_set_message('role = '. $role .' : value = '. $values[$role]);
+
     $form['autologout_one_session'][$role] = array(
       '#type' => 'select',
       '#title' => $role,
