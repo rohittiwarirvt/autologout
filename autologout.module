@@ -264,7 +264,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
 
   _autologout_debug("autologout_user($op)");
 
-  if (empty($account->uid) || $account->uid == 1) {
+  if (empty($account->uid)) {
     return; // UID 0 or UID 1 not appliciable
   }
 
