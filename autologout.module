@@ -525,11 +525,11 @@ function _autologout_settings_validate($form, $form_state) {
  * @return bool
  *  TRUE if user s to be excluded, FALSE otherwise
  */
-function _autologout_by_role($passed_user = FALSE) {
+function _autologout_by_role($passed_user = NULL) {
   global $user;
 
-  if (FALSE == $passed_user) {
-    $local_user = user_load(array('uid' => $user->uid));
+  if ($passed_user === NULL) {
+    $local_user = $user;
   }
   else {
     $local_user = $passed_user;
