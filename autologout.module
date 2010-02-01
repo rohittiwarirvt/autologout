@@ -539,12 +539,12 @@ function _autologout_by_role($passed_user = FALSE) {
       case 0: // Enforce for all in this role
         break;
       case 1: // Exclude all users in this role
-        if (in_array($role, $local_user->roles)) {
+        if (in_array($role, array_values($local_user->roles))) {
           return TRUE;
         }
         break;
       case 2: // Exclude user if user set to disable
-        if (in_array($role, $local_user->roles)) {
+        if (in_array($role, array_values($local_user->roles))) {
           if (isset($local_user->autologout) && $local_user->autologout != 0) {
             return TRUE;
           }
@@ -558,16 +558,16 @@ function _autologout_by_role($passed_user = FALSE) {
 /* }}} */
 
 /* {{{ _autologout_user_in_by_user_role() */
-function _autologout_user_in_by_user_role($passed_user = FALSE) {
+function _autologout_user_in_by_user_role($passed_user = NULL) {
   global $user;
-  if (FALSE == $passed_user) {
-    $local_user = user_load(array('uid' => $user->uid));
+  if ($passed_user === NULL) {
+    $local_user = $user;
   }
   else {
     $local_user = $passed_user;
   }
   foreach (user_roles(TRUE) as $role) {
-    if (_autologout_local_settings($role) == 2 && in_array($role, $local_user->roles)) {
+    if (_autologout_local_settings($role) == 2 && in_array($role, array_values($local_user->roles))) {
       return TRUE;
     }
   }
