@@ -566,6 +566,13 @@ function _autologout_user_in_by_user_role($passed_user = NULL) {
   else {
     $local_user = $passed_user;
   }
+
+  // some modules invoke hook_user without fully loading the $account object
+  // we may be able to remove this if those modules are fixed.
+  if ( !is_array($local_user->roles) ) {
+    return FALSE;
+  }
+
   foreach (user_roles(TRUE) as $role) {
     if (_autologout_local_settings($role) == 2 && in_array($role, array_values($local_user->roles))) {
       return TRUE;
