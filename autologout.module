@@ -152,12 +152,7 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           <span style="display:none" class="threshold">5</span>
           <span style="display:none" class="complete">'. t('You have been automatically logged out due to inactivity.') .' '. ($refresh ? ' '. t('This page will refresh in %refresh seconds.', array('%refresh' => $refresh)) : '') .'</span>
       ';
-      $redirect_url = filter_xss_admin(_autologout_local_settings('redirect_url'));
       $logout_message = filter_xss_admin(_autologout_local_settings('logout_message'));
-
-      if ( $redirect_url != '' ) {
-        $block['content'] .='<span style="display:none" class="tc_redir">'. $redirect_url .'</span>';
-      }
       if ( $logout_message != '' ) {
         $block['content'] .='<span style="display:none" class="tc_msg">'. $logout_message .'</span>';
       }
@@ -235,20 +230,31 @@ function autologout_init() {
       $_SESSION['lastaccess'] = $nowtime;
       $_SESSION['autologout_hits'] = array($nowtime);
 
-      if ($refresh = (int)_autologout_local_settings('refresh_delta') && !module_exists("countdowntimer")) {
+      $refresh = (int)_autologout_local_settings('refresh_delta');
+      if ($refresh >= 0) {
         $force_refresh = $timeout + $refresh;
-        $this_header = "<meta http-equiv=\"refresh\" content=\"{$force_refresh}\" />";
+        $this_header = "<meta http-equiv=\"refresh\" content=\"{$force_refresh};\" />";
         $this_head = drupal_set_html_head($this_header);
       }
     }
     else {
       // timeout occured, logout and end session
-      if (_autologout_local_settings('use_watchdog')) {
-        watchdog('user', 'Automated Logout activated', array(), WATCHDOG_NOTICE);
-      }
       unset($_SESSION['lastaccess']);
-      module_load_include('pages.inc', 'user');
-      user_logout();
+      // code from core(user.pages.inc), can't use it directly because we need need a custom goto
+      watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
+
+      // Destroy the current session:
+      session_destroy();
+      // Only variables can be passed by reference workaround.
+      $null = NULL;
+      user_module_invoke('logout', $null, $user);
+
+      // Load the anonymous user
+      $user = drupal_anonymous_user();
+
+      $redirect_url = filter_xss_admin(_autologout_local_settings('redirect_url'));
+
+      drupal_goto($redirect_url);
       return;
     }
   }
@@ -363,6 +369,13 @@ function autologout_menu() {
     'type' => MENU_NORMAL_ITEM
   );
 
+  $items['autologout/logout'] = array(
+    'title' => t('Automated logout'),
+    'page callback' => 'autologout_logout',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+
   return $items;
 }
 
@@ -444,33 +457,31 @@ function _autologout_settings() {
    '#value' => $markup3
   );
 
-  if (module_exists("countdowntimer")) {
-    $form['autologout']['redirect_url']  = array(
-      '#type' => 'textfield',
-      '#title' => t('Redirect URL at logout'),
-      '#default_value' => _autologout_local_settings('redirect_url'),
-      '#size' => 40,
-      '#description' => t('If you want to redirect users to another page when they are logged out. (FULL http:// path)')
-    );
-    $form['autologout']['logout_message']  = array(
-      '#type' => 'textfield',
-      '#title' => t('Display a message box at logout'),
-      '#default_value' => _autologout_local_settings('logout_message'),
-      '#size' => 40,
-      '#description' => t('If you want to display a message to the users when they are logged out.')
-    );
-  }
-  else {
-    // disabled if countdowntimer is loaded
-    $form['autologout']['refresh_delta'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Browser refresh delay'),
-      '#default_value' => _autologout_local_settings('refresh_delta'),
-      '#size' => 10,
-      '#maxlength' => 12,
-      '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to 0 (zero) disables the browser refresh facility. Using this facility will force a browser refresh and expire the session thus sending the user's browser to the homepage, in a logged out state."),
-    );
-  }
+  $form['autologout']['logout_message']  = array(
+    '#type' => 'textfield',
+    '#title' => t('Display a message at logout'),
+    '#default_value' => _autologout_local_settings('logout_message'),
+    '#size' => 40,
+    '#description' => t('If you want to display a message to the users when they are logged out.')
+  );
+
+  $form['autologout']['redirect_url']  = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirect URL at logout'),
+    '#default_value' => _autologout_local_settings('redirect_url'),
+    '#size' => 40,
+    '#description' => t('If you want to redirect users to another page when they are logged out. (default: autologout/logout)')
+  );
+
+  $form['autologout']['refresh_delta'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Browser refresh delay'),
+    '#default_value' => _autologout_local_settings('refresh_delta'),
+    '#size' => 10,
+    '#maxlength' => 12,
+    '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to -1 (negative number) disables the browser refresh facility entirely."),
+  );
+
   $form['autologout_one_session'] = array(
     '#type'  => 'fieldset',
     '#title' => t('One Session settings'),
@@ -679,5 +690,17 @@ function _autologout_invalidate_other_sessions($account) {
 
     // Write a watchdog message for the site admin.
     watchdog('Automated Logout', t('One Session automatically logged out user.'), array(), WATCHDOG_WARNING);
+  }
+}
+
+function autologout_logout() {
+  global $user;
+
+  if ($user->uid == 0 ) {
+    $xtra = filter_xss_admin(_autologout_local_settings('logout_message'));
+    print theme('page', t('You have been automatically logged out due to inactivity.') ."\n<br/>\n". $xtra);
+  }
+  else {
+    drupal_goto();
   }
 }
