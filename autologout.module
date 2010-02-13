@@ -143,8 +143,9 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
        * When we port to Drupal 7 we can change the date to date('c', $logout_time)
        * which is the ISO 8601 date used here but support was only added in PHP 5
        */
+      $nice_date = format_date($logout_time, 'small');
       $block['content'] = '
-      <span class="countdowntimer">'. t('You will be automatically logged out at') .' '. date('r', $logout_time) .' '. t('if this page is not refreshed before then.') .'
+      <span class="countdowntimer">'. t('You will be logged out at') ." $nice_date ". t('if this page is not refreshed before then.') .'
           <span style="display:none" class="datetime">'. date('Y-m-d\TH:i:s', $logout_time) . $tz .':00</span>
           <span style="display:none" class="current_server_time">'. date('Y-m-d\TH:i:s') . $tz .':00</span>
           <span style="display:none" class="dir">down</span>
