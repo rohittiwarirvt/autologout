@@ -236,8 +236,13 @@ function autologout_init() {
       $user = drupal_anonymous_user();
 
       $redirect_url = filter_xss_admin(_autologout_local_settings('redirect_url'));
-
-      drupal_goto($redirect_url);
+      if ( $redirect_url != '' ) {
+        drupal_goto($redirect_url);
+      }
+      else {
+      	drupal_goto('autologout/logout', drupal_get_destination());
+      }
+      
       return;
     }
   }
