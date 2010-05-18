@@ -259,7 +259,7 @@ function autologout_user($op, &$edit, &$account, $category = NULL) {
   _autologout_debug("autologout_user($op)");
 
   if (empty($account->uid)) {
-    return; // UID 0 or UID 1 not appliciable
+    return; // UID 0 not appliciable
   }
 
   if (!$category) {
@@ -646,8 +646,6 @@ function theme_autologout_generic($arg = 0) {
   switch ($arg) {
     case 0:
       return '<br/><b>'. t('Set-up your site policy by role:-') .'</b>';
-    case 1:
-      return '<br/><b>'. t('WARNING, user with ID = 1 (initial admin user) is never auto-logged out') .'</b>';
     default:
       return '';
   }
