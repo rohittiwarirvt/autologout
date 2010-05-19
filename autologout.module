@@ -115,13 +115,6 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
       $block['subject'] = filter_xss_admin(_autologout_local_settings('block_title'));
       $refresh = (int)_autologout_local_settings('refresh_delta');
       $timeout = _autologout_local_settings('timeout');
-      $logout_time = (int)$_SESSION['lastaccess'] + $timeout;
-      $tz = drupal_substr(date('O'), 0, 3);
-      /**
-       * When we port to Drupal 7 we can change the date to date('c', $logout_time)
-       * which is the ISO 8601 date used here but support was only added in PHP 5
-       */
-      $nice_date = format_date($logout_time, 'small');
 
       if (module_exists('jstimer') && module_exists('jst_timer')) {
         $block['content'] = theme('jstimer', 'jst_timer', array(
@@ -129,11 +122,11 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
           'threshold' => 5,
           'format_txt' => '%hours%:%mins%:%secs%',
           'complete' => t('You have been automatically logged out due to inactivity.') .' '. ($refresh ? ' '. t('This page will refresh in %refresh seconds.', array('%refresh' => $refresh)) : ''),
-          'no_js_txt' => t('You will be logged out at @nice_date if this page is not refreshed before then.', array('@nice_date' => $nice_date))
+          'no_js_txt' => t('You will be logged out in !time if this page is not refreshed before then.', array('!time' => format_interval($timeout)))
         ));
       }
       else {
-        $block['content'] = t('You will be logged out at @nice_date if this page is not refreshed before then.', array('@nice_date' => $nice_date));
+        $block['content'] = t('You will be logged out in !time if this page is not refreshed before then.', array('!time' => format_interval($timeout)));
       }
 
       $logout_message = filter_xss_admin(_autologout_local_settings('logout_message'));
