@@ -62,14 +62,6 @@ function autologout_admin_settings() {
    '#default_value' => _autologout_local_settings('use_watchdog'),
    '#description' => t('Enable logging of automatically logged out users')
   );
-  $form['autologout']['block_title']  = array(
-    '#type' => 'textfield',
-    '#title' => t('Block title'),
-    '#default_value' => _autologout_local_settings('block_title'),
-    '#size' => 40,
-    '#description' => t('The title of the block')
-  );
-
   $form['autologout']['markup2'] = array(
     '#type' => 'markup',
     '#value' => theme('autologout_generic', 0),
@@ -119,6 +111,29 @@ function autologout_admin_settings() {
     '#maxlength' => 12,
     '#description' => t("The length of time, in seconds, after a timeout that a browser refresh is forced. Setting this to -1 (negative number) disables the browser refresh facility entirely."),
   );
+
+  $form['block_settings'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Autologout warning block')
+  );
+
+  $form['block_settings']['block_title']  = array(
+    '#type' => 'textfield',
+    '#title' => t('Block title'),
+    '#default_value' => _autologout_local_settings('block_title'),
+    '#size' => 40,
+    '#description' => t('The title of the logout warning block.')
+  );
+
+  if (module_exists('jstimer') && module_exists('jst_timer')) {
+    $form['block_settings']['autologout_jstimer_format']  = array(
+      '#title' => t('Javascript timer output format string'),
+      '#type' => 'textarea',
+      '#rows' => 2,
+      '#default_value' => variable_get('autologout_jstimer_format', '%hours%:%mins%:%secs%'),
+      '#description' => t('Change the display of the dynamic timer.  Available replacement values are: %day%, %month%, %year%, %dow%, %moy%, %years%, %ydays%, %days%, %hours%, %mins%, and %secs%.')
+    );
+  }
 
   $form['autologout_one_session'] = array(
     '#type'  => 'fieldset',
