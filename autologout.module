@@ -233,9 +233,9 @@ function autologout_init() {
         drupal_goto($redirect_url);
       }
       else {
-      	drupal_goto('autologout/logout', drupal_get_destination());
+        drupal_goto('autologout/logout', drupal_get_destination());
       }
-      
+
       return;
     }
   }
@@ -662,6 +662,12 @@ function _autologout_check_one_session() {
   return $return;
 }
 function _autologout_invalidate_other_sessions($account) {
+
+  // Do nothing if anonymous.
+  if ( $account->uid == 0 ) {
+    return;
+  }
+
   // check to see if the user is already logged in somewhere else
   // if so deactivate that login and let the user know that the
   // other session has been deactivated
