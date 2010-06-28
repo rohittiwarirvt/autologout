@@ -203,6 +203,11 @@ function autologout_init() {
     else {
       // timeout occured, logout and end session
       unset($_SESSION['lastaccess']);
+
+      if (_autologout_local_settings('use_watchdog')) {
+        watchdog('autologout', 'User %name automatically logged out.', array('%name' => $user->name));
+      }
+
       // code from core(user.pages.inc), can't use it directly because we need need a custom goto
       watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
 
