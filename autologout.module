@@ -100,7 +100,6 @@ function autologout_block($op = 'list', $delta = 0, $edit = array()) {
         $block['content'] .='<span style="display:none" class="tc_msg">'. $logout_message .'</span>';
       }
 
-      $block['content'] .='</span>';
       break;
   }
 
