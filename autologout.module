@@ -143,10 +143,12 @@ function autologout_help($path, $arg) {
  * NOTE: Do as little as possible here. A lot of modules are not loaded at this point.
  */
 function autologout_boot() {
-  if ( !isset($_SESSION['autologout_hits']) ) {
-    $_SESSION['autologout_hits'] = array();
+  if (_autologout_local_settings('enabled')) {
+    if ( !isset($_SESSION['autologout_hits']) ) {
+      $_SESSION['autologout_hits'] = array();
+    }
+    $_SESSION['autologout_hits'][] = time();
   }
-  $_SESSION['autologout_hits'][] = time();
 }
 
 /* {{{ autologout_init() */
