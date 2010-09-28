@@ -215,8 +215,8 @@ function autologout_init() {
     }
   }
 
-  // Clear sesions variable if you are not using autologout function.
-  if (! _autologout_local_settings('enabled')) {
+  // Clear session variable if you are not using autologout function and for anonymous users.
+  if ( isset($_SESSION['autologout_hits']) && (! _autologout_local_settings('enabled') || $user->uid == 0) ) {
     unset($_SESSION['autologout_hits']);
   }
 
