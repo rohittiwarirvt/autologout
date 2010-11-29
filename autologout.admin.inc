@@ -34,7 +34,7 @@ function autologout_settings() {
 
   $form['autologout_roles'] = array(
     '#type' => 'fieldset',
-    '#title' => t('JS Logout Roles'),
+    '#title' => t('Auto Logout Roles'),
     '#description' => t('Select which roles should be forced to logout.'),
     '#collapsible' => FALSE,
   );
