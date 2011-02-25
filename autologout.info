@@ -1,3 +1,2 @@
-; $Id$
 name = autologout
 description = Adds automated timed logout
