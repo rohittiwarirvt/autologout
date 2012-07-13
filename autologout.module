@@ -579,7 +579,14 @@ function _autologout_invalidate_other_sessions($account) {
 }
 
 function autologout_logout() {
-    $xtra = filter_xss_admin(_autologout_local_settings('logout_message'));
-    drupal_set_message(t('You have been automatically logged out due to inactivity.') . "\n<br/>\n" . $xtra);
-    drupal_goto();
+    $xtra = filter_xss_admin(_autologout_local_settings('logout_message'));    
+	if ($xtra == '') {
+	drupal_set_message(t('You have been automatically logged out due to inactivity.'));
+	drupal_goto();
+	}
+	else {
+	drupal_set_message(t($xtra));
+	drupal_goto();
+	}
+	
 }
