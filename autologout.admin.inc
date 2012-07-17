@@ -120,7 +120,7 @@ function autologout_admin_settings() {
   $form['block_settings']['block_title']  = array(
     '#type' => 'textfield',
     '#title' => t('Block title'),
-    '#default_value' => _autologout_local_settings('block_title'),
+    '#default_value' => variable_get('block_title',_autologout_local_settings('block_title')),
     '#size' => 40,
     '#description' => t('The title of the logout warning block.')
   );
