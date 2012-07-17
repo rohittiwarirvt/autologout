@@ -125,6 +125,13 @@ function autologout_help($path, $arg) {
  * NOTE: Do as little as possible here. A lot of modules are not loaded at this point.
  */
 function autologout_boot() {
+  // Do not start session for anonymous users,
+  // as it would break Pressflow's lazy sessions.
+  // (Copy of user_is_anonymous(), which is undefined
+  // when called from hook_boot() by drush.)
+  if (!$GLOBALS['user']->uid || !empty($GLOBALS['menu_admin'])) {
+    return;
+  }
   if ( !isset($_SESSION['autologout_hits']) ) {
     $_SESSION['autologout_hits'] = array();
   }
