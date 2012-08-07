@@ -62,7 +62,7 @@ var t = setTimeout(init, Drupal.settings.autologout.timeout);
           },
         });
       }
-	  window.refresh=refresh;
+	  window.logout=logout;
 
 }
 
