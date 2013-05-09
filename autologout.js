@@ -1,13 +1,31 @@
 // $Id:
 
 Drupal.behaviors.autologout = function (context) {
-  var t = setTimeout(init, Drupal.settings.autologout.timeout);
-  var paddingTimer;
+  if(context == document) {
+    var t = setTimeout(init, Drupal.settings.autologout.timeout);
+    var paddingTimer;
+  }
   
   function init() {
     if (Drupal.settings.autologout.jquery_ui) {
-      dialog();
-      paddingTimer = setTimeout(logout, Drupal.settings.autologout.timeout_padding);
+      paddingTimer = setTimeout(confirmLogout, Drupal.settings.autologout.timeout_padding);
+
+      // While the countdown timer is going, lookup the remaining time. If there
+      // is more time remaining (i.e. a user is navigating in another tab), then
+      // reset the timer for opening the dialog.
+      $.ajax({
+        url : Drupal.settings.basePath + 'autologout_ajax_get_time_left',
+        dataType: 'json',
+        success: function(data) {
+          window.console.log(data.time);
+          if(data.time > 0) {
+            clearTimeout(paddingTimer);
+            t = setTimeout(init, data.time);
+          } else {
+            theDialog = dialog();
+          }
+        }
+      });
     } else {
       if (confirm(Drupal.settings.autologout.message) ) {
         refresh();    
@@ -18,7 +36,7 @@ Drupal.behaviors.autologout = function (context) {
   }
   
   function dialog() {
-    $('<div> ' +  Drupal.settings.autologout.message + '</div>').dialog({
+    return $('<div> ' +  Drupal.settings.autologout.message + '</div>').dialog({
       modal: true,
       closeOnEscape: false,
       width: 'auto',
@@ -53,6 +71,26 @@ Drupal.behaviors.autologout = function (context) {
     });
   }
   
+  // A user could have used the reset button on the tab/window they're actively
+  // using, so we need to double check before actually logging out.
+  function confirmLogout() {
+    $(theDialog).dialog('destroy');
+    $.ajax({
+      url : Drupal.settings.basePath + 'autologout_ajax_get_time_left',
+      dataType: 'json',
+      error: logout,
+      success: function(data) {
+        window.console.log(data.time);
+        if(data.time > 0) {
+          t = setTimeout(init, data.time);
+        }
+        else {
+          logout();
+        }
+      }
+    });
+  }
+
   function logout() {
     $.ajax({
       url: Drupal.settings.basePath + 'autologout_ahah_logout',
