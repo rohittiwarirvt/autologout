@@ -1,9 +1,20 @@
 // $Id:
 
 Drupal.behaviors.autologout = function (context) {
+  var paddingTimer;
+  var t;
+  var theDialog;
+
   if (context == document) {
-    var t = setTimeout(init, Drupal.settings.autologout.timeout);
-    var paddingTimer;
+    if (Drupal.settings.autologout.refresh_only) {
+      // On pages that cannot be logged out of don't start the logout countdown.
+      t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
+    }
+    else {
+      // On pages where the user can be logged out, set the timer to popup
+      // and log them out.
+      t = setTimeout(init, Drupal.settings.autologout.timeout);
+    }
   }
 
   function init() {
@@ -24,6 +35,11 @@ Drupal.behaviors.autologout = function (context) {
           else {
             theDialog = dialog();
           }
+        },
+        error: function(XMLHttpRequest, textStatus) {
+          if (XMLHttpRequest.status == 403) {
+            window.location = Drupal.settings.autologout.redirect_url;
+          }
         }
       });
     }
@@ -35,6 +51,22 @@ Drupal.behaviors.autologout = function (context) {
         logout();
       }
     }
+  }
+
+  function keepAlive() {
+    $.ajax({
+      url: Drupal.settings.basePath + "autologout_ahah_set_last",
+      type: "POST",
+      success: function() {
+        // After keeping the connection alive, start the timer again.
+        t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
+      },
+      error: function(XMLHttpRequest, textStatus) {
+        if (XMLHttpRequest.status == 403) {
+          window.location = Drupal.settings.autologout.redirect_url;
+        }
+      }
+    });
   }
 
   function dialog() {
@@ -70,7 +102,9 @@ Drupal.behaviors.autologout = function (context) {
         t = setTimeout(init, Drupal.settings.autologout.timeout);
       },
       error: function(XMLHttpRequest, textStatus) {
-        alert('There has been an error resetting your last access time: ' + textStatus + '.');
+        if (XMLHttpRequest.status == 403) {
+          window.location = Drupal.settings.autologout.redirect_url;
+        }
       }
     });
   }
@@ -84,7 +118,6 @@ Drupal.behaviors.autologout = function (context) {
       dataType: 'json',
       error: logout,
       success: function(data) {
-        window.console.log(data.time);
         if (data.time > 0) {
           t = setTimeout(init, data.time);
         }
@@ -103,7 +136,9 @@ Drupal.behaviors.autologout = function (context) {
         document.location.href = Drupal.settings.autologout.redirect_url;
       },
       error: function(XMLHttpRequest, textStatus) {
-        alert('There has been an error attempting to logout: ' + textStatus + '.');
+        if (XMLHttpRequest.status == 403) {
+          window.location = Drupal.settings.autologout.redirect_url;
+        }
       }
     });
   }

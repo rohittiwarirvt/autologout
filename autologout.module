@@ -187,58 +187,97 @@ function autologout_user_profile_submit(&$form, &$form_state) {
 function autologout_init() {
   global $user;
 
-  // The AJAX callbacks should not influence the time until a user is logged
-  // out, nor is the the JS inclusion necessary.
-  $ajax_callbacks = array('autologout_ahah_logout', 'autologout_ahah_set_last', 'autologout_ajax_get_time_left');
-  if (in_array($_GET['q'], $ajax_callbacks)) {
-    return;
+  // Check if JS should be included on this request.
+  foreach (module_invoke_all('autologout_prevent') as $prevent) {
+    if (!empty($prevent)) {
+      return;
+    }
   }
 
-  if ($user->uid && _autologout_logout_role($user)) {
-    // If user is not anonymous and they should be autologged out
-    // should we be enforcing on admin pages?
-    if (arg(0) == 'admin' && !variable_get('autologout_enforce_admin', FALSE)) {
-      // Check to see if autologout on admin pages is enforeced       return;
+  // Check if anything wants to be refresh only. This URL would
+  // include the javascript but will keep the login alive whilst
+  // that page is opened.
+  $refresh_only = FALSE;
+  foreach (module_invoke_all('autologout_refresh_only') as $module_refresh_only) {
+    if (!empty($module_refresh_only)) {
+      $refresh_only = TRUE;
+      break;
     }
+  }
 
-    $now = time();
-    $timeout = _autologout_get_user_timeout();
-    $timeout_padding = variable_get('autologout_padding', 10);
-    $redirct_url = variable_get('autologout_redirect_url', 'user/login');
+  $now = time();
+  $timeout = _autologout_get_user_timeout();
+  $timeout_padding = variable_get('autologout_padding', 10);
+  $redirct_url = variable_get('autologout_redirect_url', 'user/login');
 
-    $jquery_ui = module_exists('jquery_ui');
-    if ($jquery_ui) {
-      jquery_ui_add(array('ui.dialog'));
-      drupal_add_css(jquery_ui_get_path() . '/themes/default/ui.all.css');
-    }
+  $jquery_ui = module_exists('jquery_ui');
+  if ($jquery_ui) {
+    jquery_ui_add(array('ui.dialog'));
+    drupal_add_css(jquery_ui_get_path() . '/themes/default/ui.all.css');
+  }
 
-    // Get all settings JS will need for dialog.
-    $msg = t('@msg', array('@msg' => variable_get('autologout_message', 'Your session is about to expire. Do you want to reset it?')));
-    $settings = array(
-      'timeout' => $timeout * 1000,
-      'timeout_padding' => $timeout_padding * 1000,
-      'message' => t('@msg', array('@msg' => variable_get('autologout_message', 'Your session is about to expire. Do you want to reset it?'))),
-      'redirect_url' => url($redirct_url, array('query' => drupal_get_destination())),
-      'title' => t('@name Alert', array('@name' => variable_get('site_name', 'Drupal'))),
-      'jquery_ui' => $jquery_ui,
-    );
-    drupal_add_js(array('autologout' => $settings), 'setting');
-    drupal_add_js(drupal_get_path('module', 'autologout') . "/autologout.js");
+  // Get all settings JS will need for dialog.
+  $msg = t('@msg', array('@msg' => variable_get('autologout_message', 'Your session is about to expire. Do you want to reset it?')));
+  $settings = array(
+    'timeout' => $refresh_only ? ($timeout * 500) : ($timeout * 1000),
+    'timeout_padding' => $timeout_padding * 1000,
+    'message' => t('@msg', array('@msg' => $msg)),
+    'redirect_url' => url($redirct_url, array('query' => drupal_get_destination())),
+    'title' => t('@name Alert', array('@name' => variable_get('site_name', 'Drupal'))),
+    'jquery_ui' => $jquery_ui,
+    'refresh_only' => $refresh_only,
+  );
+  drupal_add_js(array('autologout' => $settings), 'setting');
+  drupal_add_js(drupal_get_path('module', 'autologout') . "/autologout.js");
 
-    // We need a backup plan if JS is disabled.
-    if (isset($_SESSION['autologout_last'])) {
-      // If time since last access is > than the timeout + some padding, logout the user. User doesnt get "Logged out" untill next page load.
-      if (($now - $_SESSION['autologout_last']) >= ($timeout + (int)$timeout_padding)) {
-        _autologout_logout();
-        drupal_goto($redirct_url, drupal_get_destination());
-      }
-      else {
-        $_SESSION['autologout_last'] = $now;
-      }
+  // We need a backup plan if JS is disabled.
+  if (!$refresh_only && isset($_SESSION['autologout_last'])) {
+    // If time since last access is > than the timeout + some padding,
+    // logout the user. User doesnt get "Logged out" untill next page load.
+    if (($now - $_SESSION['autologout_last']) >= ($timeout + (int)$timeout_padding)) {
+      _autologout_logout();
+      drupal_goto($redirct_url, drupal_get_destination());
     }
     else {
       $_SESSION['autologout_last'] = $now;
     }
+  }
+  else {
+    $_SESSION['autologout_last'] = $now;
+  }
+}
+
+/**
+ * Implements hook_autologout_prevent().
+ */
+function autologout_autologout_prevent() {
+  global $user;
+
+  // Don't include autologout JS checks on ajax callbacks.
+  $paths = array(
+    'ajax',
+    'autologout_ajax_get_time_left',
+    'autologout_ahah_logout',
+    'autologout_ahah_set_last',
+  );
+
+  if (in_array(arg(0), $paths)) {
+    return TRUE;
+  }
+
+  // If user is anonymous or have a no logout role, prevent autologout.
+  if (empty($user->uid) || !_autologout_logout_role($user)) {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_autologout_refresh_only().
+ */
+function autologout_autologout_refresh_only() {
+  // Check to see if an open admin page will keep login alive.
+  if (arg(0) == 'admin' && !variable_get('autologout_enforce_admin', FALSE)) {
+    return TRUE;
   }
 }
 
