@@ -187,6 +187,13 @@ function autologout_user_profile_submit(&$form, &$form_state) {
 function autologout_init() {
   global $user;
 
+  if (empty($user->uid)) {
+    if (!empty($_GET['autologout_timeout']) && $_GET['autologout_timeout'] == 1 && empty($_POST)) {
+      drupal_set_message(t('You have been logged out due to inactivity.'));
+    }
+    return;
+  }
+
   // Check if JS should be included on this request.
   foreach (module_invoke_all('autologout_prevent') as $prevent) {
     if (!empty($prevent)) {
@@ -209,6 +216,7 @@ function autologout_init() {
   $timeout = _autologout_get_user_timeout();
   $timeout_padding = variable_get('autologout_padding', 10);
   $redirct_url = variable_get('autologout_redirect_url', 'user/login');
+  $redirect_query = drupal_get_destination() . '&autologout_timeout=1';
 
   $jquery_ui = module_exists('jquery_ui');
   if ($jquery_ui) {
@@ -222,7 +230,7 @@ function autologout_init() {
     'timeout' => $refresh_only ? ($timeout * 500) : ($timeout * 1000),
     'timeout_padding' => $timeout_padding * 1000,
     'message' => t('@msg', array('@msg' => $msg)),
-    'redirect_url' => url($redirct_url, array('query' => drupal_get_destination())),
+    'redirect_url' => url($redirct_url, array('query' => $redirect_query)),
     'title' => t('@name Alert', array('@name' => variable_get('site_name', 'Drupal'))),
     'jquery_ui' => $jquery_ui,
     'refresh_only' => $refresh_only,
@@ -236,7 +244,7 @@ function autologout_init() {
     // logout the user. User doesnt get "Logged out" untill next page load.
     if (($now - $_SESSION['autologout_last']) >= ($timeout + (int)$timeout_padding)) {
       _autologout_logout();
-      drupal_goto($redirct_url, drupal_get_destination());
+      drupal_goto($redirct_url, $redirect_query);
     }
     else {
       $_SESSION['autologout_last'] = $now;
@@ -375,9 +383,6 @@ function _autologout_logout() {
 
   // Load the anonymous user
   $user = drupal_anonymous_user();
-
-  // @todo: this message is not being displayed once logged out.
-  drupal_set_message(t('You have been logged out due to inactivity.'));
 }
 
 /**
