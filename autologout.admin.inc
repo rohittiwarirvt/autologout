@@ -121,7 +121,4 @@ $role_timeout = _autologout_get_role_timeout();
   if (!is_numeric($timeout) || ((int)$timeout != $timeout) || $timeout < 60 || $timeout > $max_timeout) {
     form_set_error('autologout_timeout', t('The timeout must be an integer greater than 60, and less then %max.', array('%max' => $max_timeout)));
   }
-  
-  // ensure message is plain text
-  $form_state['values']['autologout_message'] = check_plain($form_state['values']['autologout_message']);
 }
