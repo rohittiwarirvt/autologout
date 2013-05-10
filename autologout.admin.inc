@@ -22,7 +22,7 @@ function autologout_settings() {
     '#default_value' => $timeout,
     '#size' => 8,
     '#weight' => -10,
-    '#description' => t('The length of inactivity time, in seconds, before Automated Logout.  Must be 60 seconds or greater. Will not be used if role timeout is activated')
+    '#description' => t('The length of inactivity time, in seconds, before automated Logout.  Must be 60 seconds or greater. Will not be used if role timeout is activated.')
   );
     $form['max_timeout'] = array(
     '#type' => 'textfield',
@@ -60,7 +60,7 @@ function autologout_settings() {
     '#title' => t('Message to display in the logout dialog.'),
     '#default_value' => variable_get('autologout_message', 'Your session is about to expire. Do you want to reset it?'),
     '#size' => 40,
-    '#description' => t('This message must be plain text as it might appear in a javascript confirm dialog.')
+    '#description' => t('This message must be plain text as it might appear in a JavaScript confirm dialog.')
   );  
   $form['autologout_use_watchdog'] = array(
    '#type' => 'checkbox',
@@ -72,7 +72,7 @@ function autologout_settings() {
    '#type' => 'checkbox',
    '#title' => t('Enforce auto logout on admin pages'),
    '#default_value' => variable_get('autologout_enforce_admin', FALSE),
-   '#description' => t('If checked, than users will be auto logged out when administering the site.')
+   '#description' => t('If checked, then users will be autoimatically logged out when administering the site.')
   );  
   $form['table'] = array(
       '#type' => 'item',
