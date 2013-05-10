@@ -6,6 +6,11 @@
  */
 
 /**
+ * Number of sessions to check for timeouts per cron run.
+ */
+define('AUTOLOGOUT_CRON_NUM', 100);
+
+/**
  * Implements hook_perm().
  */
 function autologout_perm() {
@@ -289,6 +294,53 @@ function autologout_autologout_refresh_only() {
   // Check to see if an open admin page will keep login alive.
   if (arg(0) == 'admin' && !variable_get('autologout_enforce_admin', FALSE)) {
     return TRUE;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function autologout_cron() {
+  $timeout = variable_get('autologout_timeout', 1800);
+  $timeout_padding = variable_get('autologout_padding', 10);
+
+  // Get sessions, oldest first and exclude any anonymous or newer
+  // than the timeout.
+  $sess_query = "SELECT sid, uid, timestamp
+    FROM {sessions}
+    WHERE uid > 0 AND (%d - timestamp) >= %d
+    ORDER BY sid";
+  $sessions = db_query_range($sess_query, time(), $timeout + timeout_padding, 0, AUTOLOGOUT_CRON_NUM);
+
+  while ($session = db_fetch_object($sessions)) {
+    // Create a fake account class.
+    $account = new stdClass();
+    $account->roles = array();
+    $roles_query = "SELECT rid FROM {users_roles} ur WHERE ur.uid = %d";
+    $roles = db_query($roles_query, $session->uid);
+    while ($role = db_fetch_object($roles)) {
+      // _autologout_logout_role() doesn't care about the name of the role so
+      // save a join by using the rid twice here.
+      $account->roles[$role->rid] = $role->rid;
+    }
+
+    // Does the session user have a role that should be
+    // auto-logged out?
+    //
+    // Note: we can't use the session text field because it would mean
+    // switching sessions (tweaky) and even then it may not work due to
+    // Suhosin encrypting the data.
+    if (!_autologout_logout_role($account)) {
+      continue;
+    }
+
+    // If the session should be auto-logged out, destroy the session.
+    $session_time = time() - $session->timestamp;
+    if ($session_time >= ($timeout + $timeout_padding)) {
+      db_query("DELETE FROM {sessions} WHERE sid = '%s'", $session->sid);
+      $account->name = db_result(db_query("SELECT name FROM {users} WHERE uid = %d", $session->uid));
+      watchdog('user', 'Session automatically closed for %name by autologout (cron).', array('%name' => $account->name));
+    }
   }
 }
 
