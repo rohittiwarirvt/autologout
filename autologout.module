@@ -6,12 +6,12 @@
  */
 
 /**
- * Add permission for users to change their own logout threshold
+ * Implements hook_perm().
  */
 function autologout_perm() {
   return array(
     'change own logout threshold',
-    'auto administer autologout',
+    'administer autologout',
   );
 }
 
