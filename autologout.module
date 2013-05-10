@@ -229,7 +229,8 @@ function autologout_init() {
   $jquery_ui = module_exists('jquery_ui');
   if ($jquery_ui) {
     jquery_ui_add(array('ui.dialog'));
-    drupal_add_css(jquery_ui_get_path() . '/themes/default/ui.all.css');
+    $css_folder = version_compare(jquery_ui_get_version(), '1.7', '>=') ? 'base' : 'default';
+    drupal_add_css(jquery_ui_get_path() . '/themes/' . $css_folder .'/ui.all.css');
   }
 
   // Get all settings JS will need for dialog.
