@@ -86,6 +86,7 @@ Drupal.behaviors.autologout = function (context) {
       modal: true,
       closeOnEscape: false,
       width: 'auto',
+      dialogClass: 'autologout-dialog',
       buttons: buttons,
       title: Drupal.settings.autologout.title,
       close: function(event, ui) {
