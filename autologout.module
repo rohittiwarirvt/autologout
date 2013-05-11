@@ -455,19 +455,16 @@ function _autologout_logout() {
   global $user;
   watchdog('user', 'Session automatically closed for %name by autologout.', array('%name' => $user->name));
 
-  $null = NULL;
-
   // Determine if we are looking at Pressflow
   if (!defined('CACHE_EXTERNAL')) {
     // Not Pressflow!
     // Destroy the current session.
+    module_invoke_all('user_logout', $user);
     session_destroy();
-
-    // Only variables can be passed by reference workaround.
-    user_module_invoke('logout', $null, $user);
   }
   else {
     // Pressflow!
+    $null = NULL;
     $_SESSION['autologout'] = TRUE;
     // Only variables can be passed by reference workaround.
     user_module_invoke('logout', $null, $user);
