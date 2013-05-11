@@ -118,6 +118,25 @@ class AutologoutTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Test a user is not logged out within the default timeout period.
+   */
+  public function testAutologoutNoLogoutInsideTimeout() {
+    // Check that the user can access the page after login.
+    $this->drupalGet('node');
+    $this->assertResponse(200, t('Homepage is accessible'));
+    $this->assertText(t('Log out'), t('User is still logged in.'));
+
+    // Wait within the timeout period.
+    sleep(10);
+
+    // Check we are still logged in.
+    $this->drupalGet('node');
+    $this->assertResponse(200, t('Homepage is accessible'));
+    $this->assertText(t('Log out'), t('User is still logged in.'));
+    $this->assertNoText(t('You have been logged out due to inactivity.'), t('User does not see inactivity message.'));
+  }
+
+  /**
    * Assert the timeout for a particular user.
    *
    * @param int $uid

@@ -319,7 +319,7 @@ function autologout_cron() {
     FROM {sessions}
     WHERE uid > 0 AND (%d - timestamp) >= %d
     ORDER BY sid";
-  $sessions = db_query_range($sess_query, time(), $timeout + timeout_padding, 0, AUTOLOGOUT_CRON_NUM);
+  $sessions = db_query_range($sess_query, time(), $timeout + $timeout_padding, 0, AUTOLOGOUT_CRON_NUM);
 
   while ($session = db_fetch_object($sessions)) {
     // Create a fake account class.
