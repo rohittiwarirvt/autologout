@@ -1,5 +1,4 @@
 <?php
-// $Id:
 
 /**
  * @file
@@ -17,8 +16,8 @@ function autologout_uninstall() {
   variable_del('autologout_message');
   variable_del('autologout_padding');
   variable_del('autologout_enforce_admin');
-  
+
   foreach (user_roles(TRUE) as $key => $role) {
     variable_del('autologout_role_' . $key);
-  }  
+  }
 }
