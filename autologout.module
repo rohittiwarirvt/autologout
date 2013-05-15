@@ -303,8 +303,8 @@ function autologout_autologout_prevent() {
  */
 function autologout_autologout_refresh_only() {
   // Check to see if an open admin page will keep login alive.
-  if (arg(0) == 'admin' && !variable_get('autologout_enforce_admin', FALSE)) {
-    return TRUE;
+  if (!variable_get('autologout_enforce_admin', FALSE)) {
+    return (arg(0) == 'admin' || (variable_get('node_admin_theme', '0') && arg(0) == 'node' && (arg(1) == 'add' || arg(2) == 'edit')));
   }
 }
 
