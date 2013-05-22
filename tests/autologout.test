@@ -34,7 +34,7 @@ class AutologoutTestCase extends DrupalWebTestCase {
     parent::setUp('autologout');
 
     // Create and log in our privileged user.
-    $this->privileged_user = $this->drupalCreateUser(array('access content', 'administer content types', 'administer nodes', 'access administration pages', 'access site reports', 'administer autologout', 'change own logout threshold'));
+    $this->privileged_user = $this->drupalCreateUser(array('access content', 'administer content types', 'administer nodes', 'access administration pages', 'access site reports', 'administer autologout', 'change own logout threshold', 'administer site configuration'));
     $this->drupalLogin($this->privileged_user);
 
     // For the purposes of the test, set the timeout periods to 10 seconds.
@@ -247,6 +247,30 @@ class AutologoutTestCase extends DrupalWebTestCase {
     variable_set('autologout_enforce_admin', TRUE);
     $this->assertEqual(autologout_autologout_refresh_only(), FALSE, t('User will not be kept logged into node edit pages if they are considered admin when enforce is enabled.'));
 
+  }
+
+  /**
+   * Test a user is logged out and denied access to admin pages.
+   */
+  public function testAutologoutDefaultTimeoutAccessDeniedToAdmin() {
+    // Enforce auto logout of admin pages.
+    variable_set('autologout_enforce_admin', TRUE);
+
+    // Check that the user can access the page after login.
+    $this->drupalGet('admin/reports/status');
+    $this->assertResponse(200, t('Admin page is accessible'));
+    $this->assertText(t('Log out'), t('User is still logged in.'));
+    $this->assertText(t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation."), t('User can access elements of the admin page.'));
+
+    // Wait for timeout period to elapse.
+    sleep(20);
+
+    // Check we are now logged out.
+    $this->drupalGet('admin/reports/status');
+    $this->assertResponse(403, t('Admin page returns 403 access denied.'));
+    $this->assertNoText(t('Log out'), t('User is no longer logged in.'));
+    $this->assertNoText(t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation."), t('User cannot access elements of the admin page.'));
+    $this->assertText(t('You have been logged out due to inactivity.'), t('User sees inactivity message.'));
   }
 
   /**
