@@ -359,7 +359,10 @@ function autologout_cron() {
     if ($session_time >= ($timeout + $timeout_padding)) {
       db_query("DELETE FROM {sessions} WHERE sid = '%s'", $session->sid);
       $account->name = db_result(db_query("SELECT name FROM {users} WHERE uid = %d", $session->uid));
-      watchdog('user', 'Session automatically closed for %name by autologout (cron).', array('%name' => $account->name));
+
+      if (variable_get('autologout_use_watchdog', FALSE)) {
+        watchdog('user', 'Session automatically closed for %name by autologout (cron).', array('%name' => $account->name));
+      }
     }
   }
 }
@@ -464,7 +467,10 @@ function _autologout_get_user_timeout($uid = NULL) {
  */
 function _autologout_logout() {
   global $user;
-  watchdog('user', 'Session automatically closed for %name by autologout.', array('%name' => $user->name));
+
+  if (variable_get('autologout_use_watchdog', FALSE)) {
+    watchdog('user', 'Session automatically closed for %name by autologout.', array('%name' => $user->name));
+  }
 
   // Determine if we are looking at Pressflow
   if (!defined('CACHE_EXTERNAL')) {
