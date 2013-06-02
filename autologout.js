@@ -1,4 +1,5 @@
 Drupal.behaviors.autologout = function (context) {
+
   var paddingTimer;
   var t;
   var theDialog;
@@ -66,6 +67,7 @@ Drupal.behaviors.autologout = function (context) {
             if (data.time > 0) {
               clearTimeout(paddingTimer);
               t = setTimeout(init, data.time);
+              refresh_timer(data.data);
             }
             else {
               theDialog = dialog();
@@ -93,10 +95,12 @@ Drupal.behaviors.autologout = function (context) {
     $.ajax({
       url: Drupal.settings.basePath + "autologout_ahah_set_last",
       type: "POST",
-      success: function() {
+      dataType: 'json',
+      success: function(data) {
         // After keeping the connection alive, start the timer again.
         t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
         activity = false;
+        refresh_timer(data.data);
       },
       error: function(XMLHttpRequest, textStatus) {
         if (XMLHttpRequest.status == 403) {
@@ -136,8 +140,10 @@ Drupal.behaviors.autologout = function (context) {
     $.ajax({
       url: Drupal.settings.basePath + 'autologout_ahah_set_last',
       type: "POST",
-      success: function() {
+      dataType: 'json',
+      success: function(data) {
         t = setTimeout(init, Drupal.settings.autologout.timeout);
+        refresh_timer(data.data);
       },
       error: function(XMLHttpRequest, textStatus) {
         if (XMLHttpRequest.status == 403) {
@@ -158,6 +164,7 @@ Drupal.behaviors.autologout = function (context) {
       success: function(data) {
         if (data.time > 0) {
           t = setTimeout(init, data.time);
+          refresh_timer(data.data);
         }
         else {
           logout();
@@ -179,5 +186,15 @@ Drupal.behaviors.autologout = function (context) {
         }
       }
     });
+  }
+
+  function refresh_timer(markup) {
+    var $timer = $('#timer');
+    if ($timer.length !== 0) {
+      // Replace the JS markup for timer.
+      $timer.replaceWith(markup);
+      // Force a refresh of all timers.
+      Drupal.behaviors.jstimer(context);
+    }
   }
 };

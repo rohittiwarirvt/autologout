@@ -1,14 +1,9 @@
 <?php
 
-
 /**
  * @file
- * contains all admin pages, settings, and validate.
- *
- * This file will only be parsed when processing admin menu options.
- * See http://drupal.org/node/146172
+ * Contains all admin pages, settings and validate.
  */
-
 
 /**
  * Settings form for menu callback
@@ -16,6 +11,16 @@
 function autologout_settings() {
   $form = array();
   $timeout = variable_get('autologout_timeout', 1800);
+
+  if (module_exists('jstimer')) {
+    if (!module_exists('jst_timer')) {
+      drupal_set_message(t('The "Widget: timer" module must also be enabled for the dynamic countdown to work in the automated logout block.'), 'error');
+    }
+
+    if (variable_get('jstimer_js_load_option', 0) != 1) {
+      drupal_set_message(t('The Javascript timer module\'s "Javascript load options" setting should be set to "Every page" for the dynamic countdown to work in the automated logout block.'), 'error');
+    }
+  }
 
   $form['autologout_timeout'] = array(
     '#type' => 'textfield',
@@ -116,13 +121,23 @@ function autologout_settings() {
       '#theme' => 'checkbox'
     );
   }
+
+  if (module_exists('jstimer') && module_exists('jst_timer')) {
+    $form['autologout_jstimer_format']  = array(
+      '#type' => 'textfield',
+      '#title' => t('Autologout block time format'),
+      '#default_value' => variable_get('autologout_jstimer_format', '%hours%:%mins%:%secs%'),
+      '#description' => t('Change the display of the dynamic timer.  Available replacement values are: %day%, %month%, %year%, %dow%, %moy%, %years%, %ydays%, %days%, %hours%, %mins%, and %secs%.')
+    );
+  }
+
   return system_settings_form($form);
 }
 
 /**
  * Settings validation.
  */
-function autologout_settings_validate($form, &$form_state) {  
+function autologout_settings_validate($form, &$form_state) {
   $max_timeout = $form_state['values']['autologout_max_timeout'];
   $role_timeout = _autologout_get_role_timeout();
 
