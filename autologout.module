@@ -486,6 +486,21 @@ function autologout_cron() {
 }
 
 /**
+ * Implements hook_footer().
+ *
+ * Add a form element to every page which is used to detect if the page was loaded
+ * from browser cache. This happens when the browser's back button is pressed for
+ * example. The JS will set the value of the hidden input element to 1 after initial
+ * load. If this is 1 on subsequent loads, the page was loaded from cache and an
+ * autologout timeout refresh needs to be triggered.
+ */
+function autologout_footer($main = 0) {
+  if (!_autologout_prevent()) {
+    return '<form id="autologout-cache-check"><input type="hidden" id="autologout-cache-check-bit" value="0" /></form>';
+  }
+}
+
+/**
  * AJAX callback that returns the time remaining for this user is logged out.
  */
 function autologout_ahah_get_remaining_time() {

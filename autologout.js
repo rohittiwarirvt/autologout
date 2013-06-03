@@ -1,5 +1,9 @@
 Drupal.behaviors.autologout = function (context) {
 
+  if (context !== document) {
+    return;
+  }
+
   var paddingTimer;
   var t;
   var theDialog;
@@ -8,40 +12,38 @@ Drupal.behaviors.autologout = function (context) {
   // interacted with the page.
   var activity;
 
-  if (context == document) {
-    if (Drupal.settings.autologout.refresh_only) {
-      // On pages that cannot be logged out of don't start the logout countdown.
-      t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
-    }
-    else {
+  if (Drupal.settings.autologout.refresh_only) {
+    // On pages that cannot be logged out of don't start the logout countdown.
+    t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
+  }
+  else {
 
-      // Set no activity to start with.
-      activity = false;
+    // Set no activity to start with.
+    activity = false;
 
-      // Make form editing keep the user logged in.
-      var events = 'change click blur keyup';
-      $('body')
-        .find(':input').andSelf().filter(':input')
-        .unbind(events).bind(events, function () {
-          activity = true;
-        });
+    // Make form editing keep the user logged in.
+    var events = 'change click blur keyup';
+    $('body')
+      .find(':input').andSelf().filter(':input')
+      .unbind(events).bind(events, function () {
+        activity = true;
+      });
 
-      // Support for CKEditor.
-      if (typeof CKEDITOR !== 'undefined') {
-        CKEDITOR.on('instanceCreated', function(e) {
-          e.editor.on('contentDom', function() {
-            e.editor.document.on('keyup', function(event) {
-              // Keyup event in ckeditor should prevent autologout.
-              activity = true;
-            });
+    // Support for CKEditor.
+    if (typeof CKEDITOR !== 'undefined') {
+      CKEDITOR.on('instanceCreated', function(e) {
+        e.editor.on('contentDom', function() {
+          e.editor.document.on('keyup', function(event) {
+            // Keyup event in ckeditor should prevent autologout.
+            activity = true;
           });
         });
-      }
-
-      // On pages where the user can be logged out, set the timer to popup
-      // and log them out.
-      t = setTimeout(init, Drupal.settings.autologout.timeout);
+      });
     }
+
+    // On pages where the user can be logged out, set the timer to popup
+    // and log them out.
+    t = setTimeout(init, Drupal.settings.autologout.timeout);
   }
 
   function init() {
@@ -196,5 +198,17 @@ Drupal.behaviors.autologout = function (context) {
       // Force a refresh of all timers.
       Drupal.behaviors.jstimer(context);
     }
+  }
+
+  // Check if the page was loaded via a back button click.
+  var $dirty_bit = $('#autologout-cache-check-bit');
+  if ($dirty_bit.length !== 0) {
+    if ($dirty_bit.val() == '1') {
+      // Page was loaded via a back button click, we should
+      // refresh the timer.
+      refresh();
+    }
+
+    $dirty_bit.val('1');
   }
 };
