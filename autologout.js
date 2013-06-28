@@ -125,7 +125,7 @@ Drupal.behaviors.autologout = function (context) {
       logout();
     };
 
-    return $('<div>' +  Drupal.settings.autologout.message + '</div>').dialog({
+    return $('<div id="autologout-confirm">' +  Drupal.settings.autologout.message + '</div>').dialog({
       modal: true,
       closeOnEscape: false,
       width: 'auto',
