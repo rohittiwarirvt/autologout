@@ -114,7 +114,7 @@ function _autologout_block_view($delta = '') {
 /**
  * Drupal reset timer form on timer block.
  */
-function autologout_create_block_form($form) {
+function autologout_create_block_form(&$form_state) {
 
   $markup = autologout_create_timer();
 
