@@ -64,6 +64,8 @@ if (Drupal.settings.autologout.refresh_only) {
   }
 
   function init() {
+    var noDialog = Drupal.settings.autologout.no_dialog;
+
     if (Drupal.settings.autologout.jquery_ui) {
       if (activity) {
         // The user has been active on the page.
@@ -89,6 +91,11 @@ if (Drupal.settings.autologout.refresh_only) {
               refresh_timer(data.data);
             }
             else {
+              // Logout user right away without displaying a confirmation dialog.
+              if (noDialog) {
+                logout();
+                return;
+              }
               theDialog = dialog();
             }
           },
@@ -101,7 +108,7 @@ if (Drupal.settings.autologout.refresh_only) {
       }
     }
     else {
-      if (confirm(Drupal.settings.autologout.message) ) {
+      if (!noDialog && confirm(Drupal.settings.autologout.message) ) {
         refresh();
       }
       else {

@@ -357,6 +357,7 @@ function autologout_init() {
   $timeout_padding = variable_get('autologout_padding', 10);
   $redirct_url = variable_get('autologout_redirect_url', 'user/login');
   $redirect_query = drupal_get_destination() . '&autologout_timeout=1';
+  $no_dialog = variable_get('autologout_no_dialog', FALSE);
 
   $jquery_ui = module_exists('jquery_ui');
   if ($jquery_ui) {
@@ -375,6 +376,7 @@ function autologout_init() {
     'title' => t('@name Alert', array('@name' => variable_get('site_name', 'Drupal'))),
     'jquery_ui' => $jquery_ui,
     'refresh_only' => $refresh_only,
+    'no_dialog' => $no_dialog,
   );
   // Need to add ajax.
   drupal_add_js(array('autologout' => $settings), 'setting');
