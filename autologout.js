@@ -12,7 +12,24 @@ Drupal.behaviors.autologout = function (context) {
   // interacted with the page.
   var activity;
 
-  if (Drupal.settings.autologout.refresh_only) {
+  // Timer to keep track of activity resets.
+  var activityResetTimer;
+
+  var clearResetTimer = function() {
+    // Notify on activity.
+    activity = true;
+
+    // Clear timer if one exists.
+    clearTimeout(activityResetTimer);
+
+    // Set a timer that goes off and resets this activity indicator
+    // after a minute, otherwise sessions never timeout.
+    activityResetTimer = setTimeout(function () {
+      activity = false;
+    }, 60000);
+  };
+
+if (Drupal.settings.autologout.refresh_only) {
     // On pages that cannot be logged out of don't start the logout countdown.
     t = setTimeout(keepAlive, Drupal.settings.autologout.timeout);
   }
@@ -26,7 +43,7 @@ Drupal.behaviors.autologout = function (context) {
     $('body')
       .find(':input').andSelf().filter(':input')
       .unbind(events).bind(events, function () {
-        activity = true;
+        clearResetTimer();
       });
 
     // Support for CKEditor.
@@ -35,7 +52,7 @@ Drupal.behaviors.autologout = function (context) {
         e.editor.on('contentDom', function() {
           e.editor.document.on('keyup', function(event) {
             // Keyup event in ckeditor should prevent autologout.
-            activity = true;
+            clearResetTimer();
           });
         });
       });
