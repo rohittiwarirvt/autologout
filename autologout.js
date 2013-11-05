@@ -82,7 +82,7 @@ if (Drupal.settings.autologout.refresh_only) {
         // is more time remaining (i.e. a user is navigating in another tab), then
         // reset the timer for opening the dialog.
         $.ajax({
-          url : Drupal.settings.basePath + 'autologout_ajax_get_time_left',
+          url : Drupal.settings.basePath + '?q=autologout_ajax_get_time_left',
           dataType: 'json',
           success: function(data) {
             if (data.time > 0) {
@@ -119,7 +119,7 @@ if (Drupal.settings.autologout.refresh_only) {
 
   function keepAlive() {
     $.ajax({
-      url: Drupal.settings.basePath + "autologout_ahah_set_last",
+      url: Drupal.settings.basePath + '?q=autologout_ahah_set_last',
       type: "POST",
       dataType: 'json',
       success: function(data) {
@@ -164,7 +164,7 @@ if (Drupal.settings.autologout.refresh_only) {
 
   function refresh() {
     $.ajax({
-      url: Drupal.settings.basePath + 'autologout_ahah_set_last',
+      url: Drupal.settings.basePath + '?q=autologout_ahah_set_last',
       type: "POST",
       dataType: 'json',
       success: function(data) {
@@ -184,7 +184,7 @@ if (Drupal.settings.autologout.refresh_only) {
   function confirmLogout() {
     $(theDialog).dialog('destroy');
     $.ajax({
-      url : Drupal.settings.basePath + 'autologout_ajax_get_time_left',
+      url : Drupal.settings.basePath + '?q=autologout_ajax_get_time_left',
       dataType: 'json',
       error: logout,
       success: function(data) {
@@ -201,7 +201,7 @@ if (Drupal.settings.autologout.refresh_only) {
 
   function logout() {
     $.ajax({
-      url: Drupal.settings.basePath + 'autologout_ahah_logout',
+      url: Drupal.settings.basePath + '?q=autologout_ahah_logout',
       type: "POST",
       success: function() {
         document.location.href = Drupal.settings.autologout.redirect_url;
