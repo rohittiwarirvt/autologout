@@ -213,7 +213,8 @@ class AutologoutTestCase extends DrupalWebTestCase {
     variable_set('autologout_enforce_admin', FALSE);
     $this->assertEqual(autologout_autologout_refresh_only(), TRUE, t('Autologout does logout of admin pages without enforce on admin checked.'));
 
-    // Check if user will not be kept logged in on admin paths if enforce enabled.
+    // Check if user will not be kept logged in on admin paths if
+    // enforce enabled.
     variable_set('autologout_enforce_admin', TRUE);
     $this->assertEqual(autologout_autologout_refresh_only(), FALSE, t('Autologout does not logout of admin pages with enforce on admin not checked.'));
 
@@ -225,11 +226,13 @@ class AutologoutTestCase extends DrupalWebTestCase {
     variable_set('autologout_enforce_admin', TRUE);
     $this->assertEqual(autologout_autologout_refresh_only(), FALSE, t('autologout_autologout_refresh_only() returns FALSE on non admin page when enforce is enabled.'));
 
-    // Check behaviour of autologout on node edit pages depending on their admin page status.
+    // Check behaviour of autologout on node edit pages depending
+    // on their admin page status.
     variable_set('node_admin_theme', '0');
     $_GET['q'] = 'node/add/page';
 
-    // Check if user will be logged out of node edit pages if they are not considered admin pages.
+    // Check if user will be logged out of node edit pages if they
+    // are not considered admin pages.
     variable_set('autologout_enforce_admin', FALSE);
     $this->assertEqual(autologout_autologout_refresh_only(), FALSE, t('autologout_autologout_refresh_only() returns FALSE on node edit pages when they are not considered admin pages.'));
     variable_set('autologout_enforce_admin', TRUE);
@@ -239,11 +242,13 @@ class AutologoutTestCase extends DrupalWebTestCase {
     variable_set('node_admin_theme', '1');
     $_GET['q'] = 'node/add/page';
 
-    // Check if user will be kept logged into node edit pages if they are considered admin when enforce is disabled.
+    // Check if user will be kept logged into node edit pages if they
+    // are considered admin when enforce is disabled.
     variable_set('autologout_enforce_admin', FALSE);
     $this->assertEqual(autologout_autologout_refresh_only(), TRUE, t('User will be kept logged into node edit pages if they are considered admin when enforce is disabled.'));
 
-    // Check if user will not be kept logged into node edit pages if they are considered admin wehn enforce is enabled.
+    // Check if user will not be kept logged into node edit pages if
+    // they are considered admin wehn enforce is enabled.
     variable_set('autologout_enforce_admin', TRUE);
     $this->assertEqual(autologout_autologout_refresh_only(), FALSE, t('User will not be kept logged into node edit pages if they are considered admin when enforce is enabled.'));
 

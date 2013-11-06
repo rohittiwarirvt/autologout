@@ -33,28 +33,28 @@ function autologout_menu() {
     'page arguments' => array('autologout_settings'),
     'access arguments' => array('administer autologout'),
     'file' => 'autologout.admin.inc',
-    'type' => MENU_NORMAL_ITEM
+    'type' => MENU_NORMAL_ITEM,
   );
 
   $items['autologout_ahah_logout'] = array(
     'title' => 'JS Logout',
     'page callback' => 'autologout_ahah_logout',
     'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK
+    'type' => MENU_CALLBACK,
   );
 
   $items['autologout_ahah_set_last'] = array(
     'title' => 'JS Logout AHAH Set Last',
     'page callback' => 'autologout_ahah_set_last',
     'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK
+    'type' => MENU_CALLBACK,
   );
 
   $items['autologout_ajax_get_time_left'] = array(
     'title' => 'JS Logout AJAX Get Time Until Logout',
     'page callback' => 'autologout_ahah_get_remaining_time',
     'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -165,7 +165,7 @@ function _autologout_block_configure($delta = '') {
     }
 
     if (variable_get('jstimer_js_load_option', 0) != 1) {
-      drupal_set_message(t('The Javascript timer module\'s "Javascript load options" setting should be set to "Every page" for the dynamic countdown to work in the automated logout block.'), 'error');
+      drupal_set_message(t("The Javascript timer module's 'Javascript load options' setting should be set to 'Every page' for the dynamic countdown to work in the automated logout block."), 'error');
     }
   }
 
@@ -178,9 +178,8 @@ function _autologout_block_configure($delta = '') {
 function autologout_help($path, $arg) {
   $output = _autologout_get_user_timeout();
 
-  switch ($path) {
-    case 'admin/help#autologout':
-      return '<p>' . t('This module allows you to force site users to be logged out after a given amount of time due to inactivity after first being presented with a confirmation dialog. Your current logout threshold is ' . $output . " seconds.") . '</p>';
+  if ($path == 'admin/help#autologout') {
+    return '<p>' . t('This module allows you to force site users to be logged out after a given amount of time due to inactivity after first being presented with a confirmation dialog. Your current logout threshold is ' . $output . " seconds.") . '</p>';
   }
 }
 
@@ -257,7 +256,7 @@ function autologout_timeout_validate($timeout, $max_timeout = NULL) {
   if (is_null($max_timeout)) {
     $max_timeout = variable_get('autologout_max_timeout', '172800');
   }
-  
+
   if (!is_numeric($timeout) || $timeout < 0 || ($timeout > 0 && $timeout < 60) || $timeout > $max_timeout) {
     // Less then 60, greater than max_timeout and is numeric
     // 0 is allowed now as this means no timeout.
@@ -281,7 +280,6 @@ function autologout_form_user_profile_form_alter(&$form, $form_state) {
 
   $access = FALSE;
   if ((user_access('change own logout threshold') && $current_uid == $userid) || user_access('auto administer autologout')) {
-    // If user has access to change, and they are changing their own and only thier own timeout. Or they are an admin
     $access = TRUE;
   }
 
@@ -300,11 +298,13 @@ function autologout_form_user_profile_form_alter(&$form, $form_state) {
   }
 }
 
+/**
+ * Form validation.
+ */
 function _autologout_user_uid_timeout_validate($element, &$form_state) {
   $max_timeout = variable_get('max_timeout', 172800);
   $timeout = $element['#value'];
   if ($timeout != '' && ($timeout < 60 || $timeout > $max_timeout || !is_numeric($timeout))) {
-    // Set error if it has a value that isnt stricly a number between 60 and max.
     form_error($element, t('The timeout must be an integer greater than 60, and less then %max.', array('%max' => $max_timeout)));
   }
 }
@@ -318,12 +318,10 @@ function autologout_user_profile_submit(&$form, &$form_state) {
   $userid = $form['#uid'];
   $access = FALSE;
   if ((user_access('change own logout threshold') && $current_uid == $userid) || user_access('auto administer autologout')) {
-    // If user has access to change, and they are changing their own and only thier own timeout. Or they are an admin.
     $access = TRUE;
   }
 
   if ($access) {
-    // Access is reused here as a security measure. Not only will the element not display but wont sumbit without access.
     $val = $form_state['values']['autologout_user_' . $userid];
     variable_set('autologout_user_' . $userid, $val);
   }
@@ -363,7 +361,7 @@ function autologout_init() {
   if ($jquery_ui) {
     jquery_ui_add(array('ui.dialog'));
     $css_folder = version_compare(jquery_ui_get_version(), '1.7', '>=') ? 'base' : 'default';
-    drupal_add_css(jquery_ui_get_path() . '/themes/' . $css_folder .'/ui.all.css');
+    drupal_add_css(jquery_ui_get_path() . '/themes/' . $css_folder . '/ui.all.css');
   }
 
   // Get all settings JS will need for dialog.
@@ -393,7 +391,7 @@ function autologout_init() {
   // We need a backup plan if JS is disabled.
   if (!$refresh_only && isset($_SESSION['autologout_last'])) {
     // If time since last access is > than the timeout + padding, log them out.
-    if (($now - $_SESSION['autologout_last']) >= ($timeout + (int)$timeout_padding)) {
+    if (($now - $_SESSION['autologout_last']) >= ($timeout + (int) $timeout_padding)) {
       _autologout_logout();
       _autologout_inactivity_message();
     }
@@ -498,11 +496,11 @@ function autologout_cron() {
 /**
  * Implements hook_footer().
  *
- * Add a form element to every page which is used to detect if the page was loaded
- * from browser cache. This happens when the browser's back button is pressed for
- * example. The JS will set the value of the hidden input element to 1 after initial
- * load. If this is 1 on subsequent loads, the page was loaded from cache and an
- * autologout timeout refresh needs to be triggered.
+ * Add a form element to every page which is used to detect if the page was
+ * loaded from browser cache. This happens when the browser's back button is
+ * pressed for example. The JS will set the value of the hidden input element
+ * to 1 after initial load. If this is 1 on subsequent loads, the page was
+ * loaded from cache and an autologout timeout refresh needs to be triggered.
  */
 function autologout_footer($main = 0) {
   if (!_autologout_prevent()) {
@@ -643,7 +641,7 @@ function _autologout_logout() {
     watchdog('user', 'Session automatically closed for %name by autologout.', array('%name' => $user->name));
   }
 
-  // Determine if we are looking at Pressflow
+  // Determine if we are looking at Pressflow.
   if (!defined('CACHE_EXTERNAL')) {
     // Not Pressflow!
     // Destroy the current session.
@@ -660,7 +658,7 @@ function _autologout_logout() {
     drupal_session_destroy();
   }
 
-  // Load the anonymous user
+  // Load the anonymous user.
   $user = drupal_anonymous_user();
 }
 
