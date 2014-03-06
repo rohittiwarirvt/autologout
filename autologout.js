@@ -42,7 +42,7 @@ if (Drupal.settings.autologout.refresh_only) {
     var events = 'change click blur keyup';
     $('body')
       .find(':input').andSelf().filter(':input')
-      .unbind(events).bind(events, function () {
+      .bind(events, function () {
         clearResetTimer();
       });
 
