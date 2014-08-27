@@ -12,11 +12,11 @@ function autologout_permission() {
   return array(
     'change own logout threshold' => array(
       'title' => t('Change own logout threshold'),
-      'description' => t('Selected users will be able to edit there own logout threshold.'),
+      'description' => t('Selected users will be able to edit their own logout threshold.'),
     ),
     'administer autologout'  => array(
       'title' => t('Administer Autologout'),
-      'description' => t('Administer the autologout settings'),
+      'description' => t('Administer the autologout settings.'),
     ),
   );
 }
