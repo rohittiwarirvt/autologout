@@ -122,7 +122,7 @@ function autologout_settings() {
   $form['table'] = array(
     '#type' => 'item',
     '#weight' => -2,
-    '#title' => t('If Enabled every user in role will be logged out based on that roles timeout, unless the user has an indivual timeout set.'),
+    '#title' => t('If Enabled every user in role will be logged out based on that roles timeout, unless the user has an individual timeout set.'),
     '#theme' => 'autologout_render_table',
   );
 
