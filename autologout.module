@@ -647,8 +647,9 @@ function _autologout_logout_role($user) {
  */
 function _autologout_inactivity_message() {
   $message = variable_get('autologout_inactivity_message', 'You have been logged out due to inactivity.');
+  drupal_alter('autologout_message', $message);
   if (!empty($message)) {
-    drupal_set_message(t($message));
+    drupal_set_message($message);
   }
 }
 
