@@ -359,9 +359,29 @@ function autologout_init() {
 
   $jquery_ui = module_exists('jquery_ui');
   if ($jquery_ui) {
-    jquery_ui_add(array('ui.dialog'));
+    // If the installed jquery_ui module is less than 1.5, the jquery_ui_get_path function isn't available. In that
+    // case, check the module directory for backwards compatibility. Specifically, check in
+    // JQUERY_UI_MODULE_PATH/jquery.ui/themes/default/.
     $css_folder = version_compare(jquery_ui_get_version(), '1.7', '>=') ? 'base' : 'default';
-    drupal_add_css(jquery_ui_get_path() . '/themes/' . $css_folder . '/ui.all.css');
+    $jquery_ui_lib_path_begin = '';
+    $jquery_ui_lib_path_end = '/themes/' . $css_folder . '/ui.all.css';
+    $jquery_ui_module_path = drupal_get_path('module', 'jquery_ui');
+    if (function_exists("jquery_ui_get_path")) {
+      $jquery_ui_lib_path_begin = jquery_ui_get_path();
+    }
+    elseif (file_exists($jquery_ui_module_path . '/jquery.ui' . $jquery_ui_lib_path_end)) {
+      $jquery_ui_lib_path_begin = $jquery_ui_module_path . '/jquery.ui';
+    }
+
+    $jquery_ui_css_full_path = $jquery_ui_lib_path_begin . $jquery_ui_lib_path_end;
+    if(file_exists($jquery_ui_css_full_path)) {
+      jquery_ui_add(array('ui.dialog'));
+      drupal_add_css($jquery_ui_css_full_path);
+    }
+    else {
+      $jquery_ui = FALSE;
+      watchdog('user', 'The jquery ui css file was not found.');
+    }
   }
 
   // Get all settings JS will need for dialog.
