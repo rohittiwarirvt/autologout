@@ -583,6 +583,7 @@ function _autologout_get_user_timeout($uid = NULL) {
 
   if (is_numeric($user_timeout = variable_get('autologout_user_' . $user->uid, FALSE))) {
     // User timeout takes precedence.
+    drupal_alter('autologout_timeout', $user_timeout);
     return $user_timeout;
   }
 
@@ -601,12 +602,16 @@ function _autologout_get_user_timeout($uid = NULL) {
     // Assign the lowest timeout value to be session timeout value.
     if (!empty($output)) {
       // If one of the user's roles has a unique timeout, use this.
-      return min($output);
+      $timeout = min($output);
+      drupal_alter('autologout_timeout', $timeout);
+      return $timeout;
     }
   }
 
   // If no user or role override exists, return the default timeout.
-  return variable_get('autologout_timeout', 1800);
+  $timeout = variable_get('autologout_timeout', 1800);
+  drupal_alter('autologout_timeout', $timeout);
+  return $timeout;
 }
 
 /**
