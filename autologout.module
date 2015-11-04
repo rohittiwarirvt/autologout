@@ -313,7 +313,7 @@ function _autologout_user_uid_timeout_validate($element, &$form_state) {
   $max_timeout = variable_get('autologout_max_timeout', 172800);
   $timeout = $element['#value'];
 
-  // Set error if it has a value that isnt strictly a number between 60 and max.
+  // Set error if it has a value that isn't strictly a number between 60 and max.
   if ($timeout != "" && ($timeout < 60 || $timeout > $max_timeout || !is_numeric($timeout))) {
     form_error($element, t('The timeout must be an integer greater than 60, and less then %max.', array('%max' => $max_timeout)));
   }
@@ -333,7 +333,7 @@ function autologout_user_profile_submit(&$form, &$form_state) {
   }
 
   // Access is reused here as a security measure. Not only will the element not
-  // display but wont sumbit without access.
+  // display but wont submit without access.
   if ($access) {
     $userid = $form_state['user'] -> uid;
     $val = trim($form_state['values']['autologout_user_' . $userid]);
