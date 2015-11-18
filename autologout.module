@@ -251,6 +251,8 @@ function theme_autologout_block($variables) {
  * @param int $max_timeout
  *   (optional) A maximum timeout. If not set the current system
  *   default maximum is used.
+ *
+ * @return bool
  */
 function autologout_timeout_validate($timeout, $max_timeout = NULL) {
   $validate = FALSE;
@@ -280,7 +282,6 @@ function autologout_form_user_profile_form_alter(&$form, $form_state) {
     return;
   }
 
-  $user_timeout = _autologout_get_user_timeout();
   global $user;
   $current_uid = $user->uid;
   $userid = $form_state['user']->uid;
@@ -711,7 +712,6 @@ function autologout_user_login(&$edit, $account) {
     return;
   }
 
-  $now = time();
   $timeout_padding = variable_get('autologout_padding', 10);
   $timestamp = time() - ($timeout + $timeout_padding);
 

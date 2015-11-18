@@ -153,7 +153,6 @@ function autologout_settings() {
  */
 function autologout_settings_validate($form, &$form_state) {
   $max_timeout = $form_state['values']['autologout_max_timeout'];
-  $role_timeout = _autologout_get_role_timeout();
 
   // Validate timeouts for each role.
   foreach (user_roles(TRUE) as $key => $role) {
