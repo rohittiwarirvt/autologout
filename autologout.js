@@ -144,7 +144,7 @@
 
       function logout() {
         if (localSettings.use_alt_logout_method) {
-          window.location = Drupal.settings.basePath + "?q=autologout_ahah_logout";
+          window.location = Drupal.settings.basePath + "?q=autologout_ahah_logout/alt";
         }
         else {
           $.ajax({
