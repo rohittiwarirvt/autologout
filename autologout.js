@@ -195,6 +195,7 @@
         };
 
         try {
+          ajax.beforeSerialize(ajax.element, ajax.options);
           $.ajax(ajax.options);
         }
         catch (e) {
