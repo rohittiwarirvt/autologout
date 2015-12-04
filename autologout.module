@@ -662,19 +662,16 @@ function _autologout_logout() {
   }
 
   // Determine if we are looking at Pressflow.
+  $null = NULL;
+  $_SESSION['autologout'] = TRUE;
+  user_module_invoke('logout', $null, $user);
+
   if (!defined('CACHE_EXTERNAL')) {
     // Not Pressflow!
-    // Destroy the current session.
-    module_invoke_all('user_logout', $user);
     session_destroy();
   }
   else {
     // Pressflow!
-    $null = NULL;
-    $_SESSION['autologout'] = TRUE;
-    // Only variables can be passed by reference workaround.
-    user_module_invoke('logout', $null, $user);
-    // Destroy the current session:
     drupal_session_destroy();
   }
 
