@@ -89,16 +89,6 @@ class AutologoutWarningBlock extends BlockBase implements ContainerFactoryPlugin
   public function defaultConfiguration() {
     // @todo: This is not the place where we should be doing this.
     $return = [];
-    //if ($this->moduleHandler->moduleExists('jstimer')) {
-    //  if (!$this->moduleHandler->moduleExists(('jst_timer'))) {
-    //    drupal_set_message($this->t('The "Widget: timer" module must also be enabled for the dynamic countdown to work in the automated logout block.'), 'error');
-    //  }
-
-    //  if ($this->autoLogoutSettings->get('jstimer_js_load_option') != 1) {
-    //    drupal_set_message($this->t("The Javascript timer module's 'Javascript load options' setting should be set to 'Every page' for the dynamic countdown to work in the automated logout block."), 'error');
-    //  }
-    //}
-
     return $return;
   }
 
